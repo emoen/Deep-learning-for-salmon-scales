@@ -4,13 +4,13 @@ Comparison of different prediktors. Also added results from prediction of Greenl
 
 (MAPE: Mean absolute percentage error)
 (MCC: mathews correlation coefficient)
-Test-set of otoliths and validation set on salmon scales
+Results represents the test-set of otoliths and the validation-set of salmon scales.
 
 | Species            | Predict    | MSE  | MAPE | ACC | MCC | training size
 | -------------------| -----------|------|------|-----|-----|----------------|
 | Greenland Halibut  | age        | 2.65 |0.124 |0.262|x    |8875|
-| Salom              | Sea age    |0.239 |0.141 |     |x    |9000|
-| Salom              | river age  |0.431 |0.252 |     |x    |6300|
+| Salom              | Sea age    |0.239 |0.141 |0.822|x    |ca 9000|
+| Salom              | river age  |0.431 |0.252 |0.585|x    |6300|
 | Salom missing_loss1| river & sea|1.96  |0.542 |0.628|x    |9073|
 | Salom missing_loss2| river & sea|2.04  |0.751 |0.566|x    |9073|
 | Salom              | Spawned    |x     |x     |     |     | |
