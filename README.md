@@ -18,7 +18,7 @@ Test-set of otoliths and validation set on salmon scales
 
 
 Missing_loss1/2 is same the same network - but with Dense(2, 'linear') so it predicts both sea and river age.
-
+```
 >>> df = pd.DataFrame({}, d2015.columns.values)
 >>> df = df.append(d2015)
 >>> df = df.append(d2016)
@@ -52,3 +52,4 @@ Name: sjø, dtype: int64
  6.0       8
 Name: smolt, dtype: int64
 
+```
