@@ -1,9 +1,9 @@
 # salmon-scale
 
-Comparison of different prediktors. Also added results from prediction of Greenland otolith for comparison
+Comparison of different prediktors. Also added results from prediction of Greenland otolith for comparison.<br />
 
-(MAPE: Mean absolute percentage error)
-(MCC: mathews correlation coefficient)
+(MAPE: Mean absolute percentage error)<br />
+(MCC: mathews correlation coefficient)<br />
 Results represents the test-set of otoliths and the validation-set of salmon scales.
 
 | Species            | Predict    | MSE  | MAPE | ACC | MCC | training size
