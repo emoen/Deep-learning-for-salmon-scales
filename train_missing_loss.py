@@ -14,7 +14,6 @@ from keras.applications.imagenet_utils import decode_predictions
 from keras import backend as K
 from keras.preprocessing.image import ImageDataGenerator
 import tensorflow as tf
-#import keras.layers.Lambda
 
 from sklearn.model_selection import train_test_split
 
@@ -25,28 +24,12 @@ from keras.models import Model
 from keras import optimizers, layers
 from keras import backend
 
-from v3_grayscale_missing_loss import baseline_model4
-
-def missing_mse(y_true, y_pred):
-    print("********** IN MISSING_MSE***********")
-    # y_pred=tf.constant([[1.0,2.0],[5.0,10.0]])
-
-    float_missing = K.cast(tf.logical_not(tf.equal(y_pred,-1.0)), dtype='float32')
-    y_true = K.print_tensor(y_true, message='y_true = ')
-    y_pred = K.print_tensor(y_pred, message='y_pred = ')
-    #bool_missing = Lambda((lambda x: tf.Print(bool_missing, [bool_missing], message='message', first_n=-1, summarize=1024)), name='name')(layer)
-
-    return K.mean(K.square( (y_pred - y_true)*float_missing ), axis=-1)
+from mse_missing_values import missing_mse
 
 
-age = []
-new_shape = (299, 299, 1)
-def do_train():
-    global new_shape, age
 
-    os.environ["CUDA_VISIBLE_DEVICES"]="1"
-
-    base_dir = '/gpfs/gpfs0/deep/data/salmon-scales/dataset_5_param'
+def read_and_clean_csv_files():
+    global base_dir
     d2015 = pd.read_csv(os.path.join(base_dir, '2015_5_param_edit.csv'))
     d2016 = pd.read_csv(os.path.join(base_dir, '2016_5_param_edit.csv'))
     d2017 = pd.read_csv(os.path.join(base_dir, '2017_5_param_edit.csv'))
@@ -61,57 +44,94 @@ def do_train():
     d2016rb.sjø = d2016rb.sjø.astype('float64')
     d2017rb.sjø = d2017rb.sjø.astype('float64')
 
-    null_alder = {'0'}
-    d2015.sjø = pd.Series( [-1.0 if (f in null_alder or np.isnan(f)) else f for f in d2015.sjø] )
-    d2016.sjø = pd.Series( [-1.0 if (f in null_alder or np.isnan(f)) else f for f in d2016.sjø] )
-    d2017.sjø = pd.Series( [-1.0 if (f in null_alder or np.isnan(f)) else f for f in d2017.sjø] )
-    d2018.sjø = pd.Series( [-1.0 if (f in null_alder or np.isnan(f)) else f for f in d2018.sjø] )
-    print(d2018.sjø.dtype)
-    print(d2016rb.sjø.dtype)
-    d2016rb.sjø = pd.Series( [-1.0 if (f in null_alder or np.isnan(f)) else f for f in d2016rb.sjø] )
-    d2017rb.sjø = pd.Series( [-1.0 if (f in null_alder or np.isnan(f)) else f for f in d2017rb.sjø] )
+    d2015.sjø = pd.Series( [-1.0 if (f == 0 or np.isnan(f) ) else f for f in d2015.sjø] )
+    d2016.sjø = pd.Series( [-1.0 if (f == 0 or np.isnan(f) ) else f for f in d2016.sjø] )
+    d2017.sjø = pd.Series( [-1.0 if (f == 0 or np.isnan(f) ) else f for f in d2017.sjø] )
+    d2018.sjø = pd.Series( [-1.0 if (f == 0 or np.isnan(f) ) else f for f in d2018.sjø] )
+    d2016rb.sjø = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2016rb.sjø] )
+    d2017rb.sjø = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2017rb.sjø] )
 
-    d2015.smolt = pd.Series( [-1.0 if (f in null_alder or np.isnan(f)) else f for f in d2015.smolt] )
-    d2016.smolt = pd.Series( [-1.0 if (f in null_alder or np.isnan(f)) else f for f in d2016.smolt] )
-    d2017.smolt = pd.Series( [-1.0 if (f in null_alder or np.isnan(f)) else f for f in d2017.smolt] )
-    d2018.smolt = pd.Series( [-1.0 if (f in null_alder or np.isnan(f)) else f for f in d2018.smolt] )
-    d2016rb.smolt = pd.Series( [-1.0 if (f in null_alder or np.isnan(f)) else f for f in d2016rb.smolt] )
-    d2017rb.smolt = pd.Series( [-1.0 if (f in null_alder or np.isnan(f)) else f for f in d2017rb.smolt] )
+    d2015.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2015.smolt] )
+    d2016.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2016.smolt] )
+    d2017.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2017.smolt] )
+    d2018.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2018.smolt] )
+    d2016rb.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2016rb.smolt] )
+    d2017rb.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2017rb.smolt] )
 
-    column = 'sjø'
-    count_rb = 0
-    rb_imgs = np.empty(shape=(400,)+new_shape) #699
+    all = pd.DataFrame({}, columns=d2015.columns.values)
+    all = pd.concat([d2015, d2016, d2017, d2018, d2016rb, d2017rb])
+    assert (len(all) == len(d2015)+len(d2016)+len(d2017)+len(d2018)+len(d2016rb)+len(d2017rb))
 
-    add_count = 0
-    count15 = read_any_img(d2015, os.path.join(base_dir, 'hi2015_in_excel'), 'ID nr.', rb_imgs, count_rb, age)
+    return d2015, d2016, d2017, d2018, d2016rb, d2017rb
 
-    add_count = count15
-    count16 = read_imr(d2016, os.path.join(base_dir, 'hi2016_in_excel'), 'ID nr.', rb_imgs, add_count, age, column)
+def read_imr( pandas_df, img_dir, tf_images, end_count):
+    global new_shape, id_column
 
-    add_count = count15+count16
-    count17 = read_imr(d2017, os.path.join(base_dir, 'hi2017_in_excel'), 'ID nr.', rb_imgs, add_count, age, column)
+    dir_path = os.path.join(base_dir, img_dir)
+    prediktor = pd.DataFrame({}, columns=['sjø', 'smolt', 'smolt_sjø', 'gytarar', 'farmed'])
 
-    add_count = count15+count16+count17
-    count18 = read_imr(d2018, os.path.join(base_dir, 'hi2018_in_excel'), 'ID nr.', rb_imgs, add_count, age, column)
+    found_count=0
+    for i in range(0, len(pandas_df)):
+        id = pandas_df[id_column].values[i]+'.jpg'
+        path = os.path.join(dir_path, id )
+        my_file = Path(path)
+        if not my_file.is_file():
+            path = os.path.join(dir_path, id.lower() )
+            #print("path lower():"+path)
+            my_file = Path(path)
+        if my_file.is_file() :
+            pil_img = load_img(path, grayscale=True)
+            smaller_img = pil_img.resize( (new_shape[1], new_shape[0]))
+            tf_images[end_count+found_count] = img_to_array(smaller_img)
+            smolt = pandas_df['smolt'].values[i]
+            sjo = pandas_df['sjø'].values[i]
+            gytar = pandas_df['gytarar'].values[i]
+            wild = pandas_df['vill/oppdrett'].values[i]
+            a_pred = pd.Series({'smolt': smolt, 'sjø': sjo, 'smolt_sjø':np.array([smolt, sjo]), 'gytarar': gytar, 'farmed':wild}, name=found_count)
+            prediktor = prediktor.append( a_pred )
+            found_count += 1
+        my_file = None
 
-    add_count = count15+count16+count17+count18
-    count16rb = read_imr(d2016rb, os.path.join(base_dir, 'rb2016'), 'ID nr.', rb_imgs, add_count, age, column)
+    return found_count, prediktor
 
-    add_count= count15+count16+count17+count18+count16rb
-    count17rb = read_imr(d2017rb, os.path.join(base_dir, 'rb2017'), 'ID nr.', rb_imgs, add_count, age, column)
+new_shape = (299, 299, 1)
+base_dir = '/gpfs/gpfs0/deep/data/salmon-scales/dataset_5_param'
+id_column = 'ID nr.'
+os.path.join(base_dir, 'hi2016_in_excel')
+age = []
+def do_train():
+    global new_shape, age
 
-    num_ex = count16rb + count17rb + count15 + count16 + count17 + count18
-    print("training set size:"+str( num_ex ))
-    print("len age:"+str(len(age)))
-    print("2015:"+str(count15))
-    print("2016:"+str(count16))
-    print("2017:"+str(count17))
-    print("2018:"+str(count18))
-    print("rb2016:"+str(count16rb))
-    print("rb2017:"+str(count17rb))
 
+    dataset_size_smolt_sjo = 9073
+    dataset_size_smolt = 1
+    dataset_size_sjo = 1
+    dataset_size_gytar = 1
+    dataset_size_oppdrett = 1
+    os.environ["CUDA_VISIBLE_DEVICES"]="1"
     a_batch_size = 20
-    train_set=None
+    add_count = 0
+    rb_imgs = np.empty(shape=(9073,)+new_shape)
+
+    d2015, d2016, d2017, d2018, d2016rb, d2017rb = read_and_clean_csv_files()
+
+    add_count, pred15 = read_imr(d2015, 'hi2015_in_excel', rb_imgs, add_count)
+    add_count, pred16 = read_imr(d2016, 'hi2016_in_excel', rb_imgs, add_count)
+    add_count, pred17 = read_imr(d2017, 'hi2017_in_excel', rb_imgs, add_count)
+    add_count, pred18 = read_imr(d2018, 'hi2018_in_excel', rb_imgs, add_count)
+    add_count, pred16rb = read_imr(d2016rb, 'rb2016', rb_imgs, add_count)
+    add_count, pred17rb = read_imr(d2017rb, 'rb2017', rb_imgs, add_count)
+
+    two_ages15 = np.vstack( pred15.smolt_sjø.values )
+    two_ages16 = np.vstack( pred16.smolt_sjø.values )
+    two_ages17 = np.vstack( pred17.smolt_sjø.values )
+    two_ages18 = np.vstack( pred18.smolt_sjø.values )
+    two_ages16rb = np.vstack( pred16rb.smolt_sjø.values )
+    two_ages17rb = np.vstack( pred17rb.smolt_sjø.values )
+    age = np.concatenate( (two_ages15, two_ages16, two_ages17, two_ages18, two_ages16rb, two_ages17rb), axis=0)
+
+    print("training set size:"+str( add_count ))
+
     train_set = pd.DataFrame(columns=['img', 'age'])
 
     train_set['img'] = pd.Series( (v[0] for v in rb_imgs) )
@@ -126,7 +146,6 @@ def do_train():
     print("train_idx:"+str(len(train_idx)))
     print("val_idx:"+str(len(val_idx)))
     print("test_idx:"+str(len(test_idx)))
-    #print(age)
 
     rb_imgs_train = np.empty(shape=(len(train_idx),)+new_shape)
     age_train = []
@@ -164,12 +183,30 @@ def do_train():
     rb_imgs_val_rescaled = np.multiply(rb_imgs_val, 1./255)
     rb_imgs_test_rescaled = np.multiply(rb_imgs_test, 1./255)
 
-    inception = baseline_model4()
-    z = inception.output
-    #out1 = Dense(1,  activation='linear')(z)
+    inception_no_sf = InceptionV3(include_top=False, weights='imagenet', input_shape=(299, 299, 3)) #Inception V3 without applying softmax
+    '''Modify architecture of the InceptionV3 for grayscale data'''
+    inception_no_sf_config=inception_no_sf.get_config() #Copy configuration
+    gray_model_config=dict(inception_no_sf_config)
+    gray_model_config['layers'][0]['config']['batch_input_shape']=(None, 299, 299, 1) #Change input shape
+
+    inception_no_sf_weights=inception_no_sf.get_weights() #Copy weights
+    gray_model_weights =inception_no_sf_weights.copy()
+    gray_model_weights[0] = inception_no_sf_weights[0][:,:,0,:].reshape([3,3,1,-1]) #Only use filter for red channel for transfer learning
+
+    gray_model=Model.from_config(gray_model_config) #Make grayscale model
+
+    z = gray_model.output
+    z = GlobalMaxPooling2D()(z)
+    z = Dense(1024)(z)
+    z = Activation('relu')(z)
+    z = Dense(2, activation='linear')(z)
+
+    out1 = Dense(2)(z)
+    out11 = Activation('linear')(z)
     out2 = Dense(2,  activation='sigmoid')(z)
+
     alambda = layers.Lambda(lambda x : 1+4*x)(out2)
-    otolitt = Model(inputs=inception.input, outputs=[alambda])
+    otolitt = Model(inputs=gray_model.input, outputs=[z])
     learning_rate=0.0004
     adam = optimizers.Adam(lr=learning_rate)
     #otolitt.compile(loss='mean_squared_error', optimizer=adam, metrics=['accuracy', 'mse', 'mape'], )
@@ -189,13 +226,11 @@ def do_train():
     print("len(age_val):"+str(len(age_val)))
 
     history_callback = otolitt.fit_generator(train_generator,
-            steps_per_epoch=1600,#4000
+            steps_per_epoch=1600,
             epochs=150,
-            #callbacks=[early_stopper, tensorboard, checkpointer],
             callbacks=[early_stopper, tensorboard, checkpointer],
             validation_data=(rb_imgs_val_rescaled,  np.array(age_val)))
-            #validation_data=val_generator,
-            #validation_steps=len(val_generator))
+
 
 def train_validate_test_split(pairs, validation_set_size = 0.15, test_set_size = 0.15, a_seed = 8):
     """ split pairs into 3 set, train-, validation-, and test-set
@@ -221,63 +256,6 @@ def train_validate_test_split(pairs, validation_set_size = 0.15, test_set_size =
     df_test_x, df_val_x = train_test_split(df_notTrain_x, test_size = validation_and_test_split, random_state = a_seed)
 
     return df_train_x, df_val_x, df_test_x
-
-def read_imr(pandas_df, dir_path, id_column, np_images, end_count, list_age, param_to_read):
-    global new_shape, age
-
-    found_count=0
-    pandas_df[param_to_read] = pandas_df[param_to_read].dropna()
-    for i in range(0, len(pandas_df)):
-        if not pd.isnull(pandas_df[param_to_read].values[i]):
-            if pandas_df[param_to_read].values[i] != None and not pd.isnull(pandas_df[id_column].values[i]):
-                id = pandas_df[id_column].values[i]+'.jpg'
-                path = os.path.join(dir_path, id )
-                my_file = Path(path)
-                if not my_file.is_file():
-                    path = os.path.join(dir_path, id.lower() )
-                    #print("path lower():"+path)
-                    my_file = Path(path)
-                if my_file.is_file() :
-                    pil_img = load_img(path, grayscale=True)
-                    smaller_img = pil_img.resize( (new_shape[1], new_shape[0]))
-                    np_images[end_count+found_count] = img_to_array(smaller_img)
-                    age.append([pandas_df['smolt'].values[i], pandas_df['sjø'].values[i]])
-                    found_count += 1
-                my_file = None
-    return found_count
-
-def read_any_img(pandas_df, dir_path, id_column, np_images, end_count, list_age):
-    global new_shape, age
-
-    found_count=0
-    smolt_age = []
-    sjo_age = []
-    #new_age=np.array([[]])
-    for i in range(0, len(pandas_df)):
-        if len(age) < 400:
-            id = pandas_df[id_column].values[i]+'.jpg'
-            path = os.path.join(dir_path, id )
-            my_file = Path(path)
-            if not my_file.is_file():
-                path = os.path.join(dir_path, id.lower() )
-                #print("path lower():"+path)
-                my_file = Path(path)
-            if my_file.is_file() :
-                pil_img = load_img(path, grayscale=True)
-                smaller_img = pil_img.resize( (new_shape[1], new_shape[0]))
-                np_images[end_count+found_count] = img_to_array(smaller_img)
-                age.append(np.array([pandas_df['smolt'].values[i], pandas_df['sjø'].values[i]]))
-                #smolt_age.append(pandas_df['smolt'].values[i])
-                #sjo_age.append(pandas_df['sjø'].values[i])
-                found_count += 1
-                my_file = None
-
-    age = np.vstack(age)
-    #age.append([smolt_age, sjo_age])
-    return found_count
-
-
-
 
 if __name__ == '__main__':
     do_train()
