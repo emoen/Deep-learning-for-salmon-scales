@@ -19,7 +19,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 
 * is test-set <br/>
 ** is validation-set <br/>
-missing_loss1* - corrected pred_y to y_true in missing_loss matrix. Also val<br\>
+missing_loss1* - corrected pred_y to y_true in missing_loss matrix. <br />
 
 Missing_loss1/2 is same the same network - but with Dense(2, 'linear') so it predicts both sea and river age.
 ```
