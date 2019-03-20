@@ -7,8 +7,8 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 
 | Species             | Predict    |val_LOSS| MSE  | MAPE | ACC | MCC | training size
 | --------------------| -----------|--------|------|------|-----|-----|----------------|
-| Greenland Halibut*  | age        | x      |2.65  |0.124 |0.262|x    |8875|
-| Greenland Halibut** | age        | -"-    |2.82  |0.136 |0.294|x    |8875|
+| Greenland Halibut(1)| age        | x      |2.65  |0.124 |0.262|x    |8875|
+| Greenland Halibut(2)| age        | -"-    |2.82  |0.136 |0.294|x    |8875|
 | Salmon              | sea age    | -"-    |0.239 |0.141 |0.822|x    |ca 9000|
 | Salmon              | river age  | -"-    |0.431 |0.252 |0.585|x    |6300|
 | Salmon missing_loss1| river & sea|9.4372 |2.955|0.97  |0.707|x    |9073|
@@ -17,11 +17,11 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Salmon              | Spawned    |x       |x     |      |     | |
 | Salmon              | Wild/farmed|x       |x     |      |     | |
 
-* is test-set <br/>
-** is validation-set <br/>
-missing_loss1 - missing_mse(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
-missing_loss2 - missing_mse2(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
-missing_loss2 - classic mse with 2 outputs <br />
+* (1) is test-set <br/>
+* (2) is validation-set <br/>
+* missing_loss1 - missing_mse(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
+* missing_loss2 - missing_mse2(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
+* missing_loss2 - classic mse with 2 outputs <br />
 
 Missing_loss1/2 is same the same network - but with Dense(2, 'linear') so it predicts both sea and river age.
 ```
