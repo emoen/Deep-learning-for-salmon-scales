@@ -5,14 +5,14 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 (MAPE: Mean absolute percentage error)<br />
 (MCC: mathews correlation coefficient)<br />
 
-| Species             | Predict    |val_LOSS| MSE  | MAPE | ACC | MCC | training size
-| --------------------| -----------|--------|------|------|-----|-----|----------------|
-| Greenland Halibut(1)| age        | x      |2.65  |0.124 |0.262|x    |8875|
-| Greenland Halibut(2)| age        | -"-    |2.82  |0.136 |0.294|x    |8875|
-| Salmon              | sea age    | -"-    |0.239 |0.141 |0.822|x    |ca 9000|
-| Salmon              | river age  | -"-    |0.431 |0.252 |0.585|x    |6300|
-| Salmon missing_loss1| river & sea|9.4372 |2.955|0.97  |0.707|x    |9073|
-| Salmon missing_loss2| river & sea| x      |***  |*** |***  |x    |9073|
+| Species             | Predict    |val_LOSS| MSE  | MAPE | ACC | MCC |#trained |activation func|
+| --------------------| -----------|--------|------|------|-----|-----|---------|----------------|
+| Greenland Halibut(1)| age        | x      |2.65  |0.124 |0.262|x    |8875     | linear         |
+| Greenland Halibut(2)| age        | -"-    |2.82  |0.136 |0.294|x    |8875     | linear         |
+| Salmon              | sea age    | -"-    |0.239 |0.141 |0.822|x    |ca 9000  | linear         |
+| Salmon              | river age  | -"-    |0.431 |0.252 |0.585|x    |6300     | linear         |
+| Salmon missing_loss1| river & sea|9.4372  |2.955 |0.97  |0.707|x    |9073     | linear         |
+| Salmon missing_loss2| river & sea| x      |***  |*** |***  |x    |9073 | linear         |
 | Salmon missing_loss3| river & sea|  |  | ||x    |9073|
 | Salmon              | Spawned    |x       |x     |      |     | |
 | Salmon              | Wild/farmed|x       |x     |      |     | |
