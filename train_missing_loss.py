@@ -24,7 +24,7 @@ from keras.models import Model
 from keras import optimizers, layers
 from keras import backend
 
-from mse_missing_values import missing_mse
+from mse_missing_values import missing_mse, missing_mse2
 
 
 
@@ -183,23 +183,9 @@ def do_train():
     rb_imgs_val_rescaled = np.multiply(rb_imgs_val, 1./255)
     rb_imgs_test_rescaled = np.multiply(rb_imgs_test, 1./255)
 
-    inception_no_sf = InceptionV3(include_top=False, weights='imagenet', input_shape=(299, 299, 3)) #Inception V3 without applying softmax
-    '''Modify architecture of the InceptionV3 for grayscale data'''
-    inception_no_sf_config=inception_no_sf.get_config() #Copy configuration
-    gray_model_config=dict(inception_no_sf_config)
-    gray_model_config['layers'][0]['config']['batch_input_shape']=(None, 299, 299, 1) #Change input shape
-
-    inception_no_sf_weights=inception_no_sf.get_weights() #Copy weights
-    gray_model_weights =inception_no_sf_weights.copy()
-    gray_model_weights[0] = inception_no_sf_weights[0][:,:,0,:].reshape([3,3,1,-1]) #Only use filter for red channel for transfer learning
-
-    gray_model=Model.from_config(gray_model_config) #Make grayscale model
-
-    z = gray_model.output
-    z = GlobalMaxPooling2D()(z)
-    z = Dense(1024)(z)
-    z = Activation('relu')(z)
-    z = Dense(2, activation='linear')(z)
+    gray_model = create_inceptionV3_grayscale()
+    gray_model = get_fresh_weights(gray_model)
+    z = dense2_linear_output(gray_model)
 
     out1 = Dense(2)(z)
     out11 = Activation('linear')(z)
@@ -210,7 +196,7 @@ def do_train():
     learning_rate=0.0004
     adam = optimizers.Adam(lr=learning_rate)
     #otolitt.compile(loss='mean_squared_error', optimizer=adam, metrics=['accuracy', 'mse', 'mape'], )
-    otolitt.compile(loss=missing_mse, optimizer=adam, metrics=['accuracy', 'mse', 'mape'], )
+    otolitt.compile(loss='mse', optimizer=adam, metrics=['accuracy', 'mse', 'mape'], )
     for layer in otolitt.layers:
         layer.trainable = True
 
@@ -231,6 +217,74 @@ def do_train():
             callbacks=[early_stopper, tensorboard, checkpointer],
             validation_data=(rb_imgs_val_rescaled,  np.array(age_val)))
 
+# use Red color channel from inceptionV3 as grayscale channel
+def create_inceptionV3_grayscale():
+
+    inception_no_sf = InceptionV3(include_top=False, weights='imagenet', input_shape=(299, 299, 3)) #Inception V3 without applying softmax
+    '''Modify architecture of the InceptionV3 for grayscale data'''
+    inception_no_sf_config=inception_no_sf.get_config() #Copy configuration
+    gray_model_config=dict(inception_no_sf_config)
+    gray_model_config['layers'][0]['config']['batch_input_shape']=(None, 299, 299, 1) #Change input shape
+
+    inception_no_sf_weights=inception_no_sf.get_weights() #Copy weights
+    gray_model_weights =inception_no_sf_weights.copy()
+    gray_model_weights[0] = inception_no_sf_weights[0][:,:,0,:].reshape([3,3,1,-1]) #Only use filter for red channel for transfer learning
+
+    gray_model=Model.from_config(gray_model_config) #Make grayscale model
+
+    return gray_model
+
+#It seems updating a model also updates the wegihts of the previous model. So, get fresh weights.
+def get_fresh_weights(gray_model):
+    gray_model.set_weights(gray_model_weights)
+    return gray_model
+
+def base_output(gray_model):
+    z = gray_model.output
+    z = GlobalMaxPooling2D()(z)
+    z = Dense(1024)(z)
+    z = Activation('relu')(z)
+    return z
+
+def dense2_linear_output(gray_model):
+    z = base_output(gray_model)
+    z = Dense(2, activation='linear')(z)
+    return z
+
+def dense2_sigmoid_output(gray_model):
+    z = base_output(gray_model)
+    z = Dense(2, activation='sigmoid')(z)
+    return z
+
+def dense1_linear_output(gray_model):
+    z = base_output(gray_model)
+    z = Dense(1, activation='linear')(z)
+    return z
+
+def dense1_sigmoid_output(gray_model):
+    z = base_output(gray_model)
+    z = Dense(1, activation='sigmoid')(z)
+    return z
+
+# Assume Salmon never stay more than 6 years in river
+# (Because thats what the data tells)
+def dense1_lambda_river_output(gray_model):
+    z = base_output(gray_model)
+    alambda = layers.Lambda(lambda x : 1+5*x)(z)
+    return alambda
+
+# Assume Salmon never live more than 12 years in sea
+# (Because thats what the data tells)
+def dense1_lambda_sea_output(gray_model):
+    z = base_output(gray_model)
+    alambda = layers.Lambda(lambda x : 1+11*x)(z)
+    return alambda
+
+# Age is integer value: Generalized linear model using Poisson
+def dense1_poisson_output(gray_model):
+    z = base_output(gray_model)
+    z = Dense(1, activation='elu')(z)
+    return z
 
 def train_validate_test_split(pairs, validation_set_size = 0.15, test_set_size = 0.15, a_seed = 8):
     """ split pairs into 3 set, train-, validation-, and test-set
