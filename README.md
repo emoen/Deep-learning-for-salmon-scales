@@ -21,7 +21,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 * (2) is validation-set <br/>
 * missing_loss1 - missing_mse(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
 * missing_loss2 - missing_mse2(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
-* missing_loss2 - classic mse with 2 outputs <br />
+* missing_loss3 - classic mse with 2 outputs <br />
 
 Missing_loss1/2 is same the same network - but with Dense(2, 'linear') so it predicts both sea and river age.
 ```
