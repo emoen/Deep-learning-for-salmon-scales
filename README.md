@@ -23,6 +23,8 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 * missing_loss2 - missing_mse2(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
 * missing_loss3 - classic mse with 2 outputs <br />
 
+Note val_acc is 0.7068 in almost every epoch (except 2. epoch of missing_loss2 training.) <br />
+
 Missing_loss1/2 is same the same network - but with Dense(2, 'linear') so it predicts both sea and river age.
 ```
 >>> df = pd.DataFrame({}, d2015.columns.values)
