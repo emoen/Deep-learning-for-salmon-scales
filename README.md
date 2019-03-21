@@ -12,8 +12,8 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Salmon              | sea age    | -"-    |0.239 |0.141 |0.822|x    |ca 9000  | linear         |
 | Salmon              | river age  | -"-    |0.431 |0.252 |0.585|x    |6300     | linear         |
 | Salmon missing_loss1| river & sea|9.4372  |2.955 |0.97  |0.707|x    |9073     | linear         |
-| Salmon missing_loss2| river & sea|0.59199 |2.9886|09797 |0.707|x    |9073     | linear         |
-| Salmon missing_loss3| river & sea|        |      |      |     |x    |9073     | linear         |
+| Salmon missing_loss2| river & sea|0.5915  |2.992 |0.974 |0.707|x    |9073     | linear         |
+| Salmon missing_loss3| river & sea|2.0107  |2.011 |0.744 |0.607|x    |9073     | linear         |
 | Salmon              | Spawned    |x       |x     |      |     | |
 | Salmon              | Wild/farmed|x       |x     |      |     | |
 
