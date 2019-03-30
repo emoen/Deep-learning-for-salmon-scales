@@ -26,8 +26,6 @@ from keras import backend
 
 from mse_missing_values import missing_mse, missing_mse2
 
-
-
 def read_and_clean_csv_files():
     global base_dir
     d2015 = pd.read_csv(os.path.join(base_dir, '2015_5_param_edit.csv'))
@@ -58,17 +56,13 @@ def read_and_clean_csv_files():
     d2016rb.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2016rb.smolt] )
     d2017rb.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2017rb.smolt] )
 
-    all = pd.DataFrame({}, columns=d2015.columns.values)
-    all = pd.concat([d2015, d2016, d2017, d2018, d2016rb, d2017rb])
-    assert (len(all) == len(d2015)+len(d2016)+len(d2017)+len(d2018)+len(d2016rb)+len(d2017rb))
-
     return d2015, d2016, d2017, d2018, d2016rb, d2017rb
 
-def read_imr( pandas_df, img_dir, tf_images, end_count):
+def read_img_to_array_and_age_to_df( pandas_df, img_dir, tf_images, end_count):
     global new_shape, id_column
 
     dir_path = os.path.join(base_dir, img_dir)
-    prediktor = pd.DataFrame({}, columns=['sjø', 'smolt', 'smolt_sjø', 'gytarar', 'farmed'])
+    prediktor = pd.DataFrame({}, columns=['sjø', 'smolt', 'smolt_sjø', 'gytarar', 'oppdrett'])
 
     found_count=0
     for i in range(0, len(pandas_df)):
@@ -85,9 +79,13 @@ def read_imr( pandas_df, img_dir, tf_images, end_count):
             tf_images[end_count+found_count] = img_to_array(smaller_img)
             smolt = pandas_df['smolt'].values[i]
             sjo = pandas_df['sjø'].values[i]
-            gytar = pandas_df['gytarar'].values[i]
-            wild = pandas_df['vill/oppdrett'].values[i]
-            a_pred = pd.Series({'smolt': smolt, 'sjø': sjo, 'smolt_sjø':np.array([smolt, sjo]), 'gytarar': gytar, 'farmed':wild}, name=found_count)
+            gytar = [1, 0]
+            if pandas_df['gytarar'].values[i] != "":
+                gytar = [0, 1]
+            oppdrett = [1, 0]
+            if pandas_df['vill/oppdrett'].values[i] == 'Vill':
+                oppdrett = [0, 1]
+            a_pred = pd.Series({'smolt': smolt, 'sjø': sjo, 'smolt_sjø':np.array([smolt, sjo]), 'gytarar': gytar, 'oppdrett': oppdrett},name=found_count)
             prediktor = prediktor.append( a_pred )
             found_count += 1
         my_file = None
@@ -97,38 +95,96 @@ def read_imr( pandas_df, img_dir, tf_images, end_count):
 new_shape = (299, 299, 1)
 base_dir = '/gpfs/gpfs0/deep/data/salmon-scales/dataset_5_param'
 id_column = 'ID nr.'
-os.path.join(base_dir, 'hi2016_in_excel')
+tensorboard_path = './tensorboard_missing_loss'
+checkpoint_path = './checkpoints_missing_loss/salmon_scale_inception.{epoch:03d}-{val_loss:.2f}.hdf5'
 age = []
+to_predict = 'gytarar'
+#to_predict = 'sjø'
 def do_train():
-    global new_shape, age
-
+    global new_shape, age, tensorboard_path, checkpoint_path, to_predict
 
     dataset_size_smolt_sjo = 9073
-    dataset_size_smolt = 1
-    dataset_size_sjo = 1
-    dataset_size_gytar = 1
-    dataset_size_oppdrett = 1
+    dataset_size_smolt = 6246
+    dataset_size_sjo = 9073
+    dataset_size_gytar = 9073
+    dataset_size_oppdrett = 9073
+    dataset_size_selected = dataset_size_smolt
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
     a_batch_size = 20
     add_count = 0
-    rb_imgs = np.empty(shape=(9073,)+new_shape)
 
+    #Total number of images in directory 9636
+    rb_imgs = np.empty(shape=(9073,)+new_shape)
+    dataset_imgs_selected = np.empty(shape=(dataset_size_selected,)+new_shape)
+    print("rb_imgs:"+str(rb_imgs.shape))
+    print("dataset_imgs_selected:"+str(dataset_imgs_selected.shape))
+    print("data[0]"+str(dataset_imgs_selected[0].shape))
     d2015, d2016, d2017, d2018, d2016rb, d2017rb = read_and_clean_csv_files()
 
-    add_count, pred15 = read_imr(d2015, 'hi2015_in_excel', rb_imgs, add_count)
-    add_count, pred16 = read_imr(d2016, 'hi2016_in_excel', rb_imgs, add_count)
-    add_count, pred17 = read_imr(d2017, 'hi2017_in_excel', rb_imgs, add_count)
-    add_count, pred18 = read_imr(d2018, 'hi2018_in_excel', rb_imgs, add_count)
-    add_count, pred16rb = read_imr(d2016rb, 'rb2016', rb_imgs, add_count)
-    add_count, pred17rb = read_imr(d2017rb, 'rb2017', rb_imgs, add_count)
+    add_count, pred15 = read_img_to_array_and_age_to_df(d2015, 'hi2015_in_excel', rb_imgs, add_count)
+    add_count, pred16 = read_img_to_array_and_age_to_df(d2016, 'hi2016_in_excel', rb_imgs, add_count)
+    add_count, pred17 = read_img_to_array_and_age_to_df(d2017, 'hi2017_in_excel', rb_imgs, add_count)
+    add_count, pred18 = read_img_to_array_and_age_to_df(d2018, 'hi2018_in_excel', rb_imgs, add_count)
+    add_count, pred16rb = read_img_to_array_and_age_to_df(d2016rb, 'rb2016', rb_imgs, add_count)
+    add_count, pred17rb = read_img_to_array_and_age_to_df(d2017rb, 'rb2017', rb_imgs, add_count)
 
-    two_ages15 = np.vstack( pred15.smolt_sjø.values )
-    two_ages16 = np.vstack( pred16.smolt_sjø.values )
-    two_ages17 = np.vstack( pred17.smolt_sjø.values )
-    two_ages18 = np.vstack( pred18.smolt_sjø.values )
-    two_ages16rb = np.vstack( pred16rb.smolt_sjø.values )
-    two_ages17rb = np.vstack( pred17rb.smolt_sjø.values )
-    age = np.concatenate( (two_ages15, two_ages16, two_ages17, two_ages18, two_ages16rb, two_ages17rb), axis=0)
+    all = pd.DataFrame({}, columns=pred15.columns.values)
+    all = pd.concat([pred15, pred16, pred17, pred18, pred16rb, pred17rb], axis=0, join='outer', ignore_index=False)
+    #all = all.rename(index=str, columns={'vill/oppdrett': 'vill'})
+
+    assert (len(all) == len(pred15)+len(pred16)+len(pred17)+len(pred18)+len(pred16rb)+len(pred17rb))
+    print("len(all)"+str(len(all)))
+    print("len(rb_imgs))"+str(len(rb_imgs)))
+    print("*****")
+    assert len(all) == len(rb_imgs)
+
+    age = np.array([], dtype=np.float32)
+    imgs_add_counter = 0
+    if to_predict == 'smolt':
+        imgs_add_counter = 0
+        for i in range(0, len(all)):
+            if all.smolt.values[i] != -1.0:
+                age = np.append(age, all.smolt.values[i])
+                dataset_imgs_selected[imgs_add_counter] = rb_imgs[i]
+                imgs_add_counter += 1
+
+    print("len age:"+str(age.shape))
+    print("dataset_imgs_selected:"+str(dataset_imgs_selected.shape))
+
+    return
+    if to_predict == 'sjø':
+        for i in range(0, len(all)):
+            if all.sjø.values[i] != -1.0:
+                age = np.append(age, all.sjø.values[i])
+                dataset_imgs_selected[imgs_add_counter] = rb_imgs[i]
+                imgs_add_counter += 1
+    if to_predict == 'smolt_sjo':
+        for i in range(0, len(all)):
+            if all.smolt.values[i] != -1.0 or all.sjø.values[i] != -1.0:
+                age = np.append(age, all.smolt_sjø.values[i])
+                dataset_imgs_selected[imgs_add_counter] = rb_imgs[i]
+                imgs_add_counter += 1
+    if to_predict == 'gytarar':
+        tmp = all.dropna(subset=['gytarar'])
+        print("size gytarar:"+str(len(tmp)))
+        age = np.vstack(all.gytarar.values)
+        print(age[0:5])
+        print("age shape:"+str(age.shape))
+    if to_predict == 'oppdrett':
+        count_vill = len(all[(all.vill == 'Vill')].vill)
+        count_farmed = len(all[(all.vill != 'Vill')].vill)
+        print("count_vill:"+str(count_vill))
+        print("count_farmed"+str(count_farmed))
+        for i in range(0, len(all)):
+            if all.gytarar.values[i] != -1.0:
+                age = np.append(age, all.smolt_sjø.values[i])
+                dataset_imgs_selected[imgs_add_counter] = rb_imgs[i]
+                imgs_add_counter += 1
+
+    print("dataset_imgs_selected.shape"+str(dataset_imgs_selected.shape))
+    print("len(dataset_imgs_selected)"+str(len(dataset_imgs_selected)))
+    age = np.vstack(age)
+    assert len(age) == len(dataset_imgs_selected)
 
     print("training set size:"+str( add_count ))
 
@@ -137,7 +193,6 @@ def do_train():
     train_set['img'] = pd.Series( (v[0] for v in rb_imgs) )
     for i in range(0,len(age)):
         train_set['age'].values[i] = age[i]
-
 
     print("rb_imgs:"+str(len(rb_imgs)))
     print("age:"+str(len(age)))
@@ -160,6 +215,9 @@ def do_train():
         rb_imgs_val[i] = rb_imgs[val_idx[i]]
         age_val.append(age[val_idx[i]])
     age_val=np.vstack(age_val)
+
+    print("******* gytarar validation set ************")
+    print(age_val)
 
     rb_imgs_test = np.empty(shape=(len(test_idx),)+new_shape)
     age_test = []
@@ -185,37 +243,44 @@ def do_train():
 
     gray_model = create_inceptionV3_grayscale()
     gray_model = get_fresh_weights(gray_model)
-    z = dense2_linear_output(gray_model)
+    #z = dense2_linear_output(gray_model)
+    z = dense2_gytarar(gray_model)
 
-    out1 = Dense(2)(z)
-    out11 = Activation('linear')(z)
-    out2 = Dense(2,  activation='sigmoid')(z)
-
-    alambda = layers.Lambda(lambda x : 1+4*x)(out2)
-    otolitt = Model(inputs=gray_model.input, outputs=[z])
+    scales = Model(inputs=gray_model.input, outputs=[z])
     learning_rate=0.0004
     adam = optimizers.Adam(lr=learning_rate)
-    #otolitt.compile(loss='mean_squared_error', optimizer=adam, metrics=['accuracy', 'mse', 'mape'], )
-    otolitt.compile(loss='mse', optimizer=adam, metrics=['accuracy', 'mse', 'mape'], )
+    scales.compile(loss='binary_crossentropy', optimizer=adam, metrics=['accuracy', 'mse', 'mape'], )
     for layer in otolitt.layers:
         layer.trainable = True
 
-    tensorboard = TensorBoard(log_dir='./tensorboard_missing_loss')
-    checkpointer = ModelCheckpoint(
-        filepath = './checkpoints_missing_loss/salmon_scale_inception.{epoch:03d}-{val_loss:.2f}.hdf5',
-        verbose = 1,
-        save_best_only = True,
-        save_weights_only = False)
+    tensorboard, checkpointer = get_checkpoint_tensorboard(tensorboard_path, checkpoint_path)
 
-    #print("age_val:"+str(age_val))
     print("len(rb_imgs_val_rescaled):"+str(len(rb_imgs_val_rescaled)))
     print("len(age_val):"+str(len(age_val)))
 
-    history_callback = otolitt.fit_generator(train_generator,
+    history_callback = scales.fit_generator(train_generator,
             steps_per_epoch=1600,
             epochs=150,
             callbacks=[early_stopper, tensorboard, checkpointer],
             validation_data=(rb_imgs_val_rescaled,  np.array(age_val)))
+
+    test_metrics = scales.evaluate(x=rb_imgs_test_rescaled, y=age_test) #, batch_size=None, verbose=1, sample_weight=None, steps=None, callbacks=None)
+    test_predictions = scales.predict(rb_imgs_test_rescaled ) #, batch_size=None, verbose=0, steps=None, callbacks=None)
+    print("predictions:")
+    print(test_predictions)
+    print("test_metrics:")
+    print(test_metrics)
+
+
+def get_checkpoint_tensorboard(tensorboard_path, checkpoint_path):
+
+    tensorboard = TensorBoard(log_dir=tensorboard_path)
+    checkpointer = ModelCheckpoint(
+        filepath = checkpoint_path,
+        verbose = 1,
+        save_best_only = True,
+        save_weights_only = False)
+    return tensorboard, checkpointer
 
 # use Red color channel from inceptionV3 as grayscale channel
 def create_inceptionV3_grayscale():
@@ -245,6 +310,12 @@ def base_output(gray_model):
     z = Dense(1024)(z)
     z = Activation('relu')(z)
     return z
+
+def dense2_gytarar(gray_model):
+    x = gray_model.output
+    x = Dense(2, input_dim=1024)(x)
+    x = Activation('softmax')(x)
+    return x
 
 def dense2_linear_output(gray_model):
     z = base_output(gray_model)
@@ -285,6 +356,13 @@ def dense1_poisson_output(gray_model):
     z = base_output(gray_model)
     z = Dense(1, activation='elu')(z)
     return z
+
+def nll1(y_true, y_pred):
+    """ Negative log likelihood. """
+
+    # keras.losses.binary_crossentropy give the mean
+    # over the last axis. we require the sum
+    return K.sum(K.binary_crossentropy(y_true, y_pred), axis=-1)
 
 def train_validate_test_split(pairs, validation_set_size = 0.15, test_set_size = 0.15, a_seed = 8):
     """ split pairs into 3 set, train-, validation-, and test-set
