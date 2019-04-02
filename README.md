@@ -14,7 +14,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Salmon missing_loss1| river & sea|9.4372  |2.955 |0.97  |0.707|x    |9073     | linear | x |
 | Salmon missing_loss2| river & sea|0.5915  |2.992 |0.974 |0.707|x    |9073     | linear | x |
 | Salmon missing_loss3| river & sea|2.0107  |2.011 |0.744 |0.607|x    |9073     | linear | x |
-| Salmon              | Spawned    |x       |x     |      |     |     |9073     |        | 422 (4.7%) |
+| Salmon              | Spawned    |x       |x     |      |     |     |9073(0.4 val)| softmax| 422 (4.7%) |
 | Salmon              | Wild/farmed|x       |x     |      |     |     |         |        |  |
 
 * (1) is test-set <br/>
