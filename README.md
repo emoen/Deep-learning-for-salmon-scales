@@ -5,17 +5,17 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 (MAPE: Mean absolute percentage error)<br />
 (MCC: mathews correlation coefficient)<br />
 
-| Species             | Predict    |val_LOSS| MSE  | MAPE | ACC | MCC |#trained |activation func|
-| --------------------| -----------|--------|------|------|-----|-----|---------|----------------|
-| Greenland Halibut(1)| age        | x      |2.65  |0.124 |0.262|x    |8875     | linear         |
-| Greenland Halibut(2)| age        | -"-    |2.82  |0.136 |0.294|x    |8875     | linear         |
-| Salmon              | sea age    | -"-    |0.239 |0.141 |0.822|x    |ca 9000  | linear         |
-| Salmon              | river age  | -"-    |0.431 |0.252 |0.585|x    |6300     | linear         |
-| Salmon missing_loss1| river & sea|9.4372  |2.955 |0.97  |0.707|x    |9073     | linear         |
-| Salmon missing_loss2| river & sea|0.5915  |2.992 |0.974 |0.707|x    |9073     | linear         |
-| Salmon missing_loss3| river & sea|2.0107  |2.011 |0.744 |0.607|x    |9073     | linear         |
-| Salmon              | Spawned    |x       |x     |      |     | |
-| Salmon              | Wild/farmed|x       |x     |      |     | |
+| Species             | Predict    |val_LOSS| MSE  | MAPE | ACC | MCC |#trained |activ. f| class imb. pos ex |
+| --------------------| -----------|--------|------|------|-----|-----|---------|--------|-------------------|
+| Greenland Halibut(1)| age        | x      |2.65  |0.124 |0.262|x    |8875     | linear | x | 
+| Greenland Halibut(2)| age        | -"-    |2.82  |0.136 |0.294|x    |8875     | linear | x |
+| Salmon              | sea age    | -"-    |0.239 |0.141 |0.822|x    |ca 9000  | linear | x |
+| Salmon              | river age  | -"-    |0.431 |0.252 |0.585|x    |6300     | linear | x |
+| Salmon missing_loss1| river & sea|9.4372  |2.955 |0.97  |0.707|x    |9073     | linear | x |
+| Salmon missing_loss2| river & sea|0.5915  |2.992 |0.974 |0.707|x    |9073     | linear | x |
+| Salmon missing_loss3| river & sea|2.0107  |2.011 |0.744 |0.607|x    |9073     | linear | x |
+| Salmon              | Spawned    |x       |x     |      |     |     |         |        | 422 (4.7%) |
+| Salmon              | Wild/farmed|x       |x     |      |     |     |         |        |  |
 
 * (1) is test-set <br/>
 * (2) is validation-set <br/>
