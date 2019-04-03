@@ -3,10 +3,7 @@ import os
 from keras.preprocessing.image import img_to_array, load_img
 from pathlib import Path
 import math
-
 import numpy as np
-
-import xlrd
 
 from keras.models import Sequential
 from keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping
@@ -65,6 +62,7 @@ def read_img_to_array_and_age_to_df( pandas_df, img_dir, tf_images, end_count):
     prediktor = pd.DataFrame({}, columns=['sjø', 'smolt', 'smolt_sjø', 'gytarar', 'oppdrett'])
 
     found_count=0
+    pandas_df.gytarar = pandas_df.gytarar.astype('str')
     for i in range(0, len(pandas_df)):
         id = pandas_df[id_column].values[i]+'.jpg'
         path = os.path.join(dir_path, id )
@@ -80,7 +78,7 @@ def read_img_to_array_and_age_to_df( pandas_df, img_dir, tf_images, end_count):
             smolt = pandas_df['smolt'].values[i]
             sjo = pandas_df['sjø'].values[i]
             gytar = [1, 0]
-            if pandas_df['gytarar'].values[i] != "":
+            if pandas_df['gytarar'].values[i] == 'nan' or pandas_df['gytarar'].values[i] == '':
                 gytar = [0, 1]
             oppdrett = [1, 0]
             if pandas_df['vill/oppdrett'].values[i] == 'Vill':
@@ -108,7 +106,9 @@ def do_train():
     dataset_size_sjo = 9073
     dataset_size_gytar = 9073
     dataset_size_oppdrett = 9073
-    dataset_size_selected = dataset_size_smolt
+
+    dataset_size_selected = dataset_size_gytar
+
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
     a_batch_size = 20
     add_count = 0
@@ -118,7 +118,6 @@ def do_train():
     dataset_imgs_selected = np.empty(shape=(dataset_size_selected,)+new_shape)
     print("rb_imgs:"+str(rb_imgs.shape))
     print("dataset_imgs_selected:"+str(dataset_imgs_selected.shape))
-    print("data[0]"+str(dataset_imgs_selected[0].shape))
     d2015, d2016, d2017, d2018, d2016rb, d2017rb = read_and_clean_csv_files()
 
     add_count, pred15 = read_img_to_array_and_age_to_df(d2015, 'hi2015_in_excel', rb_imgs, add_count)
@@ -130,13 +129,12 @@ def do_train():
 
     all = pd.DataFrame({}, columns=pred15.columns.values)
     all = pd.concat([pred15, pred16, pred17, pred18, pred16rb, pred17rb], axis=0, join='outer', ignore_index=False)
-    #all = all.rename(index=str, columns={'vill/oppdrett': 'vill'})
+    all = all.rename(index=str, columns={'vill/oppdrett': 'vill'})
 
     assert (len(all) == len(pred15)+len(pred16)+len(pred17)+len(pred18)+len(pred16rb)+len(pred17rb))
+    assert len(all) == len(rb_imgs)
     print("len(all)"+str(len(all)))
     print("len(rb_imgs))"+str(len(rb_imgs)))
-    print("*****")
-    assert len(all) == len(rb_imgs)
 
     age = np.array([], dtype=np.float32)
     imgs_add_counter = 0
@@ -147,11 +145,6 @@ def do_train():
                 age = np.append(age, all.smolt.values[i])
                 dataset_imgs_selected[imgs_add_counter] = rb_imgs[i]
                 imgs_add_counter += 1
-
-    print("len age:"+str(age.shape))
-    print("dataset_imgs_selected:"+str(dataset_imgs_selected.shape))
-
-    return
     if to_predict == 'sjø':
         for i in range(0, len(all)):
             if all.sjø.values[i] != -1.0:
@@ -165,25 +158,15 @@ def do_train():
                 dataset_imgs_selected[imgs_add_counter] = rb_imgs[i]
                 imgs_add_counter += 1
     if to_predict == 'gytarar':
-        tmp = all.dropna(subset=['gytarar'])
-        print("size gytarar:"+str(len(tmp)))
         age = np.vstack(all.gytarar.values)
-        print(age[0:5])
-        print("age shape:"+str(age.shape))
+        dataset_imgs_selected = rb_imgs
     if to_predict == 'oppdrett':
-        count_vill = len(all[(all.vill == 'Vill')].vill)
-        count_farmed = len(all[(all.vill != 'Vill')].vill)
-        print("count_vill:"+str(count_vill))
-        print("count_farmed"+str(count_farmed))
-        for i in range(0, len(all)):
-            if all.gytarar.values[i] != -1.0:
-                age = np.append(age, all.smolt_sjø.values[i])
-                dataset_imgs_selected[imgs_add_counter] = rb_imgs[i]
-                imgs_add_counter += 1
+        age = np.vstack( all.vill. values )
+        dataset_imgs_selected = rb_imgs
 
     print("dataset_imgs_selected.shape"+str(dataset_imgs_selected.shape))
     print("len(dataset_imgs_selected)"+str(len(dataset_imgs_selected)))
-    age = np.vstack(age)
+
     assert len(age) == len(dataset_imgs_selected)
 
     print("training set size:"+str( add_count ))
@@ -196,7 +179,7 @@ def do_train():
 
     print("rb_imgs:"+str(len(rb_imgs)))
     print("age:"+str(len(age)))
-    train_idx, val_idx, test_idx = train_validate_test_split(range(0, len(rb_imgs)))
+    train_idx, val_idx, test_idx = train_validate_test_split(range(0, len(rb_imgs)), validation_set_size = 0.40, test_set_size = 0.05, a_seed = 8)
 
     print("train_idx:"+str(len(train_idx)))
     print("val_idx:"+str(len(val_idx)))
@@ -216,15 +199,22 @@ def do_train():
         age_val.append(age[val_idx[i]])
     age_val=np.vstack(age_val)
 
-    print("******* gytarar validation set ************")
-    print(age_val)
-
     rb_imgs_test = np.empty(shape=(len(test_idx),)+new_shape)
     age_test = []
     for i in range(0, len(test_idx)):
         rb_imgs_test[i] = rb_imgs[test_idx[i]]
         age_test.append(age[test_idx[i]])
     age_test = np.vstack(age_test)
+
+    print("******* gytarar train/valid/test set ************")
+    tuples_val = [tuple(l) for l in age_val]
+    tuples_train = [tuple(l) for l in age_train]
+    tuples_test  = [tuple(l) for l in age_val]
+    print("age_train is:"+str(set(tuples_train))+" count (0,1), (1,0):"+str(tuples_train.count((0,1)))+" "+str(tuples_train.count((1,0))))
+    print("age_validation is:"+str(set(tuples_val))+" count (0,1), (1,0):"+str(tuples_val.count((0,1)))+" "+str(tuples_val.count((1,0))))
+    print("age_test is:"+str(set(tuples_test))+" count (0,1), (1,0):"+str(tuples_test.count((0,1)))+" "+str(tuples_test.count((1,0))))
+
+    print("******* end ************")
 
     early_stopper = EarlyStopping(patience=20)
     train_datagen = ImageDataGenerator(
@@ -241,16 +231,16 @@ def do_train():
     rb_imgs_val_rescaled = np.multiply(rb_imgs_val, 1./255)
     rb_imgs_test_rescaled = np.multiply(rb_imgs_test, 1./255)
 
-    gray_model = create_inceptionV3_grayscale()
-    gray_model = get_fresh_weights(gray_model)
+    gray_model, gray_model_weights = create_inceptionV3_grayscale()
+    gray_model = get_fresh_weights( gray_model, gray_model_weights )
     #z = dense2_linear_output(gray_model)
-    z = dense2_gytarar(gray_model)
+    z = dense2_gytarar( gray_model )
 
     scales = Model(inputs=gray_model.input, outputs=[z])
     learning_rate=0.0004
     adam = optimizers.Adam(lr=learning_rate)
-    scales.compile(loss='binary_crossentropy', optimizer=adam, metrics=['accuracy', 'mse', 'mape'], )
-    for layer in otolitt.layers:
+    scales.compile(loss='binary_crossentropy', optimizer=adam, metrics=[matthews_correlation, 'accuracy', 'mse', 'mape'], )
+    for layer in scales.layers:
         layer.trainable = True
 
     tensorboard, checkpointer = get_checkpoint_tensorboard(tensorboard_path, checkpoint_path)
@@ -297,10 +287,10 @@ def create_inceptionV3_grayscale():
 
     gray_model=Model.from_config(gray_model_config) #Make grayscale model
 
-    return gray_model
+    return gray_model, gray_model_weights
 
 #It seems updating a model also updates the wegihts of the previous model. So, get fresh weights.
-def get_fresh_weights(gray_model):
+def get_fresh_weights(gray_model, gray_model_weights):
     gray_model.set_weights(gray_model_weights)
     return gray_model
 
@@ -312,10 +302,10 @@ def base_output(gray_model):
     return z
 
 def dense2_gytarar(gray_model):
-    x = gray_model.output
-    x = Dense(2, input_dim=1024)(x)
-    x = Activation('softmax')(x)
-    return x
+    z = base_output(gray_model)
+    z = Dense(2, input_dim=1024)(z)
+    z = Activation('softmax')(z)
+    return z
 
 def dense2_linear_output(gray_model):
     z = base_output(gray_model)
@@ -381,13 +371,31 @@ def train_validate_test_split(pairs, validation_set_size = 0.15, test_set_size =
     array([2, 9])
     """
     validation_and_test_set_size = validation_set_size + test_set_size
-    validation_and_test_split = 0.5
+    validation_and_test_split = validation_set_size / (test_set_size+validation_set_size)
 
     df_train_x, df_notTrain_x = train_test_split(pairs, test_size = validation_and_test_set_size, random_state = a_seed)
 
     df_test_x, df_val_x = train_test_split(df_notTrain_x, test_size = validation_and_test_split, random_state = a_seed)
 
     return df_train_x, df_val_x, df_test_x
+
+def matthews_correlation(y_true, y_pred):
+    y_pred_pos = K.round(K.clip(y_pred, 0, 1))
+    y_pred_neg = 1 - y_pred_pos
+
+    y_pos = K.round(K.clip(y_true, 0, 1))
+    y_neg = 1 - y_pos
+
+    tp = K.sum(y_pos * y_pred_pos)
+    tn = K.sum(y_neg * y_pred_neg)
+
+    fp = K.sum(y_neg * y_pred_pos)
+    fn = K.sum(y_pos * y_pred_neg)
+
+    numerator = (tp * tn - fp * fn)
+    denominator = K.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+
+    return numerator / (denominator + K.epsilon())
 
 if __name__ == '__main__':
     do_train()
