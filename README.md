@@ -20,8 +20,8 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 * (1) is test-set <br/>
 * (2) is validation-set <br/>
 * (3) Validation set was 40%, test set 5%. 
-** Training-set (negative example, positive example): (4861, 129)
-** Validation-set (negative example, positive example): (3541 89) - 89/(3541+89)= 0.025, 1-0.25 = 0.975
+  * Training-set (negative example, positive example): (4861, 129)
+  * Validation-set (negative example, positive example): (3541 89) - 89/(3541+89)= 0.025, 1-0.25 = 0.975
 * missing_loss1 - missing_mse(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
 * missing_loss2 - missing_mse2(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
 * missing_loss3 - classic mse with 2 outputs <br />
