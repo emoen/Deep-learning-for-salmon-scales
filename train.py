@@ -21,7 +21,10 @@ from keras.models import Model
 from keras import optimizers, layers
 from keras import backend
 
+from keras.utils import to_categorical
+
 from mse_missing_values import missing_mse, missing_mse2
+from v3_grayscale_softmax import baseline_model4
 
 def read_and_clean_csv_files():
     global base_dir
@@ -53,6 +56,49 @@ def read_and_clean_csv_files():
     d2016rb.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2016rb.smolt] )
     d2017rb.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2017rb.smolt] )
 
+    d2015 = d2015.rename(index=str, columns={'vill/oppdrett': 'vill'})
+    d2015.vill = d2015.vill.astype('str')
+    d2015.at[d2015['vill']=='Vill', 'vill'] = 'vill'
+    d2015.at[d2015['vill']=='Oppdrett', 'vill'] = 'oppdrett'
+    d2015.at[d2015['vill']=='.', 'vill'] = 'ukjent'
+    d2015.at[d2015['vill']=='nan', 'vill'] = 'ukjent'
+    d2015.at[d2015['vill']=='Regnbueørret', 'vill'] = 'ukjent'
+    d2015.at[d2015['vill']=='Utsatt', 'vill'] = 'ukjent'
+
+    d2016 = d2016.rename(index=str, columns={'vill/oppdrett': 'vill'})
+    d2016.vill = d2016.vill.astype('str')
+    d2016.at[d2016['vill']=='Vill', 'vill'] = 'vill'
+    d2016.at[d2016['vill']=='Vill ', 'vill'] = 'vill'
+    d2016.at[d2016['vill']=='Oppdrett ', 'vill'] = 'oppdrett'
+    d2016.at[d2016['vill']=='Oppdrett', 'vill'] = 'oppdrett'
+    d2016.at[d2016['vill']=='.', 'vill'] = 'ukjent'
+    d2016.at[d2016['vill']=='Sjøørret', 'vill'] = 'ukjent'
+    d2016.at[d2016['vill']=='nan', 'vill'] = 'ukjent'
+    d2016.at[d2016['vill']=='Utsatt', 'vill'] = 'ukjent'
+
+    d2017 = d2017.rename(index=str, columns={'vill/oppdrett': 'vill'})
+    d2017.vill = d2017.vill.astype('str')
+    d2017.at[d2017['vill']=='Vill', 'vill'] = 'vill'
+    d2017.at[d2017['vill']=='Oppdrett', 'vill'] = 'oppdrett'
+    d2017.at[d2017['vill']=='Ikke lesbar', 'vill'] = 'ukjent'
+    d2017.at[d2017['vill']=='.', 'vill'] = 'ukjent'
+    d2017.at[d2017['vill']=='Utsatt', 'vill'] = 'ukjent'
+
+    d2016rb = d2016rb.rename(index=str, columns={'vill/oppdrett': 'vill'})
+    d2016rb.vill = d2016rb.vill.astype('str')
+    d2016rb.at[d2016rb['vill']=='Vill', 'vill'] = 'vill'
+    d2016rb.at[d2016rb['vill']=='Oppdrett', 'vill'] = 'oppdrett'
+    d2016rb.at[d2016rb['vill']=='?', 'vill'] = 'ukjent'
+    d2016rb.at[d2016rb['vill']=='.', 'vill'] = 'ukjent'
+    d2016rb.at[d2016rb['vill']=='nan', 'vill'] = 'ukjent'
+
+    d2017rb = d2017rb.rename(index=str, columns={'vill/oppdrett': 'vill'})
+    d2017rb.vill = d2017rb.vill.astype('str')
+
+    label_encoder = LabelEncoder()
+    integer_encoded = label_encoder.fit_transform(d2015.vill.values)
+    encoded = to_categorical(integer_encoded )
+
     return d2015, d2016, d2017, d2018, d2016rb, d2017rb
 
 def read_img_to_array_and_age_to_df( pandas_df, img_dir, tf_images, end_count):
@@ -77,13 +123,13 @@ def read_img_to_array_and_age_to_df( pandas_df, img_dir, tf_images, end_count):
             tf_images[end_count+found_count] = img_to_array(smaller_img)
             smolt = pandas_df['smolt'].values[i]
             sjo = pandas_df['sjø'].values[i]
-            gytar = [1, 0]
+            gytar = np.array([1, 0], dtype=np.float32)
             if pandas_df['gytarar'].values[i] == 'nan' or pandas_df['gytarar'].values[i] == '':
-                gytar = [0, 1]
-            oppdrett = [1, 0]
+                gytar = np.array([0, 1], dtype=np.float32)
+            oppdrett = np.array([1, 0], dtype=np.float32)
             if pandas_df['vill/oppdrett'].values[i] == 'Vill':
-                oppdrett = [0, 1]
-            a_pred = pd.Series({'smolt': smolt, 'sjø': sjo, 'smolt_sjø':np.array([smolt, sjo]), 'gytarar': gytar, 'oppdrett': oppdrett},name=found_count)
+                oppdrett = np.array([0, 1], dtype=np.float32)
+            a_pred = pd.Series({'smolt': smolt, 'sjø': sjo, 'smolt_sjø':np.array([smolt, sjo], dtype=np.float32), 'gytarar': gytar, 'oppdrett': oppdrett},name=found_count)
             prediktor = prediktor.append( a_pred )
             found_count += 1
         my_file = None
@@ -96,43 +142,42 @@ id_column = 'ID nr.'
 tensorboard_path = './tensorboard_missing_loss'
 checkpoint_path = './checkpoints_missing_loss/salmon_scale_inception.{epoch:03d}-{val_loss:.2f}.hdf5'
 age = []
-to_predict = 'gytarar'
-#to_predict = 'sjø'
+dataset_size_smolt_sjo = 9073
+dataset_size_smolt = 6246
+dataset_size_sjo = 9073
+dataset_size_gytar = 9073
+dataset_size_oppdrett = 9073
+
+dataset_size_selected = dataset_size_oppdrett
+to_predict = 'oppdrett'
+
+#Total number of images in directory 9636
 def do_train():
-    global new_shape, age, tensorboard_path, checkpoint_path, to_predict
-
-    dataset_size_smolt_sjo = 9073
-    dataset_size_smolt = 6246
-    dataset_size_sjo = 9073
-    dataset_size_gytar = 9073
-    dataset_size_oppdrett = 9073
-
-    dataset_size_selected = dataset_size_gytar
+    global new_shape, age, tensorboard_path, checkpoint_path, to_predict, dataset_size_selected
 
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
-    a_batch_size = 20
+    a_batch_size = 32
     add_count = 0
 
-    #Total number of images in directory 9636
-    rb_imgs = np.empty(shape=(9073,)+new_shape)
-    dataset_imgs_selected = np.empty(shape=(dataset_size_selected,)+new_shape)
+    rb_imgs = np.empty(shape=(999,)+new_shape)
+    dataset_imgs_selected = np.empty(shape=(999,)+new_shape) #dataset_size_selected,)+new_shape)
     print("rb_imgs:"+str(rb_imgs.shape))
     print("dataset_imgs_selected:"+str(dataset_imgs_selected.shape))
     d2015, d2016, d2017, d2018, d2016rb, d2017rb = read_and_clean_csv_files()
 
     add_count, pred15 = read_img_to_array_and_age_to_df(d2015, 'hi2015_in_excel', rb_imgs, add_count)
-    add_count, pred16 = read_img_to_array_and_age_to_df(d2016, 'hi2016_in_excel', rb_imgs, add_count)
-    add_count, pred17 = read_img_to_array_and_age_to_df(d2017, 'hi2017_in_excel', rb_imgs, add_count)
-    add_count, pred18 = read_img_to_array_and_age_to_df(d2018, 'hi2018_in_excel', rb_imgs, add_count)
-    add_count, pred16rb = read_img_to_array_and_age_to_df(d2016rb, 'rb2016', rb_imgs, add_count)
-    add_count, pred17rb = read_img_to_array_and_age_to_df(d2017rb, 'rb2017', rb_imgs, add_count)
+    #add_count, pred16 = read_img_to_array_and_age_to_df(d2016, 'hi2016_in_excel', rb_imgs, add_count)
+    #add_count, pred17 = read_img_to_array_and_age_to_df(d2017, 'hi2017_in_excel', rb_imgs, add_count)
+    #add_count, pred18 = read_img_to_array_and_age_to_df(d2018, 'hi2018_in_excel', rb_imgs, add_count)
+    #add_count, pred16rb = read_img_to_array_and_age_to_df(d2016rb, 'rb2016', rb_imgs, add_count)
+    #add_count, pred17rb = read_img_to_array_and_age_to_df(d2017rb, 'rb2017', rb_imgs, add_count)
 
     all = pd.DataFrame({}, columns=pred15.columns.values)
-    all = pd.concat([pred15, pred16, pred17, pred18, pred16rb, pred17rb], axis=0, join='outer', ignore_index=False)
-    all = all.rename(index=str, columns={'vill/oppdrett': 'vill'})
+    all = pd.concat([pred15], axis=0, join='outer', ignore_index=False) #, pred16, pred17, pred18, pred16rb, pred17rb], axis=0, join='outer', ignore_index=False)
+    #all = all.rename(index=str, columns={'vill/oppdrett': 'vill'})
 
-    assert (len(all) == len(pred15)+len(pred16)+len(pred17)+len(pred18)+len(pred16rb)+len(pred17rb))
-    assert len(all) == len(rb_imgs)
+    #assert (len(all) == len(pred15)+len(pred16)+len(pred17)+len(pred18)+len(pred16rb)+len(pred17rb))
+    #assert len(all) == len(rb_imgs)
     print("len(all)"+str(len(all)))
     print("len(rb_imgs))"+str(len(rb_imgs)))
 
@@ -161,7 +206,7 @@ def do_train():
         age = np.vstack(all.gytarar.values)
         dataset_imgs_selected = rb_imgs
     if to_predict == 'oppdrett':
-        age = np.vstack( all.vill. values )
+        age = np.vstack( all.oppdrett.values )
         dataset_imgs_selected = rb_imgs
 
     print("dataset_imgs_selected.shape"+str(dataset_imgs_selected.shape))
@@ -179,7 +224,10 @@ def do_train():
 
     print("rb_imgs:"+str(len(rb_imgs)))
     print("age:"+str(len(age)))
-    train_idx, val_idx, test_idx = train_validate_test_split(range(0, len(rb_imgs)), validation_set_size = 0.40, test_set_size = 0.05, a_seed = 8)
+
+    train_idx, val_idx, test_idx = train_validate_test_split( range(0, len(rb_imgs)) )
+    if to_predict == 'gytarar':
+        train_idx, val_idx, test_idx = train_validate_test_split(range(0, len(rb_imgs)), validation_set_size = 0.40, test_set_size = 0.05, a_seed = 8)
 
     print("train_idx:"+str(len(train_idx)))
     print("val_idx:"+str(len(val_idx)))
@@ -213,7 +261,6 @@ def do_train():
     print("age_train is:"+str(set(tuples_train))+" count (0,1), (1,0):"+str(tuples_train.count((0,1)))+" "+str(tuples_train.count((1,0))))
     print("age_validation is:"+str(set(tuples_val))+" count (0,1), (1,0):"+str(tuples_val.count((0,1)))+" "+str(tuples_val.count((1,0))))
     print("age_test is:"+str(set(tuples_test))+" count (0,1), (1,0):"+str(tuples_test.count((0,1)))+" "+str(tuples_test.count((1,0))))
-
     print("******* end ************")
 
     early_stopper = EarlyStopping(patience=20)
@@ -237,9 +284,13 @@ def do_train():
     z = dense2_gytarar( gray_model )
 
     scales = Model(inputs=gray_model.input, outputs=[z])
-    learning_rate=0.0004
+    learning_rate=0.1   #0.0004
     adam = optimizers.Adam(lr=learning_rate)
-    scales.compile(loss='binary_crossentropy', optimizer=adam, metrics=[matthews_correlation, 'accuracy', 'mse', 'mape'], )
+
+    inception = baseline_model4()
+    z = inception.output
+    scales = Model(inputs=inception.input, outputs=z)
+    scales.compile(loss='categorical_crossentropy', optimizer=adam, metrics=[matthews_correlation, 'accuracy' ] ) #, 'mse', 'mape'] )
     for layer in scales.layers:
         layer.trainable = True
 
@@ -256,7 +307,7 @@ def do_train():
 
     test_metrics = scales.evaluate(x=rb_imgs_test_rescaled, y=age_test) #, batch_size=None, verbose=1, sample_weight=None, steps=None, callbacks=None)
     test_predictions = scales.predict(rb_imgs_test_rescaled ) #, batch_size=None, verbose=0, steps=None, callbacks=None)
-    print("predictions:")
+    print("test predictions:")
     print(test_predictions)
     print("test_metrics:")
     print(test_metrics)
