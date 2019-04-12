@@ -23,6 +23,8 @@ from keras import backend
 
 from keras.utils import to_categorical
 
+from sklearn import preprocessing
+
 from mse_missing_values import missing_mse, missing_mse2
 from v3_grayscale_softmax import baseline_model4
 
@@ -84,6 +86,25 @@ def read_and_clean_csv_files():
     d2017.at[d2017['vill']=='.', 'vill'] = 'ukjent'
     d2017.at[d2017['vill']=='Utsatt', 'vill'] = 'ukjent'
 
+    d2018 = d2018.rename(index=str, columns={'vill/oppdrett': 'vill'})
+    d2018.vill = d2018.vill.astype('str')
+    d2018.at[d2018['vill']=='Vill', 'vill'] = 'vill'
+    d2018.at[d2018['vill']=='Oppdrett', 'vill'] = 'oppdrett'
+    d2018.at[d2018['vill']=='nan', 'vill'] = 'ukjent'
+    d2018.at[d2018['vill']=='Mangler skjell', 'vill'] = 'ukjent'
+    d2018.at[d2018['vill']=='Ikkje lesbar', 'vill'] = 'ukjent'
+    d2018.at[d2018['vill']=='Sjøaure', 'vill'] = 'ukjent'
+    d2018.at[d2018['vill']=='Mangler skjellprøve', 'vill'] = 'ukjent'
+    d2018.at[d2018['vill']=='Ikke lesbar', 'vill'] = 'ukjent'
+    d2018.at[d2018['vill']=='Skjell Mangler', 'vill'] = 'ukjent'
+    d2018.at[d2018['vill']=='Mangler Skjell', 'vill'] = 'ukjent'
+    d2018.at[d2018['vill']=='Ikke lesbart', 'vill'] = 'ukjent'
+    d2018.at[d2018['vill']=='Utsatt', 'vill'] = 'ukjent'
+    d2018.at[d2018['vill']=='.', 'vill'] = 'ukjent'
+    d2018.at[d2018['vill']=='Manglar skjell', 'vill'] = 'ukjent'
+    d2018.at[d2018['vill']=='Sjøørret', 'vill'] = 'ukjent'
+    d2018.at[d2018['vill']=='Ørret', 'vill'] = 'ukjent'
+
     d2016rb = d2016rb.rename(index=str, columns={'vill/oppdrett': 'vill'})
     d2016rb.vill = d2016rb.vill.astype('str')
     d2016rb.at[d2016rb['vill']=='Vill', 'vill'] = 'vill'
@@ -94,10 +115,11 @@ def read_and_clean_csv_files():
 
     d2017rb = d2017rb.rename(index=str, columns={'vill/oppdrett': 'vill'})
     d2017rb.vill = d2017rb.vill.astype('str')
-
-    label_encoder = LabelEncoder()
-    integer_encoded = label_encoder.fit_transform(d2015.vill.values)
-    encoded = to_categorical(integer_encoded )
+    d2017rb.at[d2017rb['vill']=='Vill', 'vill'] = 'vill'
+    d2017rb.at[d2017rb['vill']=='Oppdrett', 'vill'] = 'oppdrett'
+    d2017rb.at[d2017rb['vill']=='?', 'vill'] = 'ukjent'
+    d2017rb.at[d2017rb['vill']=='.', 'vill'] = 'ukjent'
+    d2017rb.at[d2017rb['vill']=='nan', 'vill'] = 'ukjent'
 
     return d2015, d2016, d2017, d2018, d2016rb, d2017rb
 
@@ -105,7 +127,7 @@ def read_img_to_array_and_age_to_df( pandas_df, img_dir, tf_images, end_count):
     global new_shape, id_column
 
     dir_path = os.path.join(base_dir, img_dir)
-    prediktor = pd.DataFrame({}, columns=['sjø', 'smolt', 'smolt_sjø', 'gytarar', 'oppdrett'])
+    prediktor = pd.DataFrame({}, columns=['sjø', 'smolt', 'smolt_sjø', 'gytarar', 'vill'])
 
     found_count=0
     pandas_df.gytarar = pandas_df.gytarar.astype('str')
@@ -126,10 +148,8 @@ def read_img_to_array_and_age_to_df( pandas_df, img_dir, tf_images, end_count):
             gytar = np.array([1, 0], dtype=np.float32)
             if pandas_df['gytarar'].values[i] == 'nan' or pandas_df['gytarar'].values[i] == '':
                 gytar = np.array([0, 1], dtype=np.float32)
-            oppdrett = np.array([1, 0], dtype=np.float32)
-            if pandas_df['vill/oppdrett'].values[i] == 'Vill':
-                oppdrett = np.array([0, 1], dtype=np.float32)
-            a_pred = pd.Series({'smolt': smolt, 'sjø': sjo, 'smolt_sjø':np.array([smolt, sjo], dtype=np.float32), 'gytarar': gytar, 'oppdrett': oppdrett},name=found_count)
+            oppdrett = pandas_df.vill.values[i]
+            a_pred = pd.Series({'smolt': smolt, 'sjø': sjo, 'smolt_sjø':np.array([smolt, sjo], dtype=np.float32), 'gytarar': gytar, 'vill': oppdrett},name=found_count)
             prediktor = prediktor.append( a_pred )
             found_count += 1
         my_file = None
@@ -159,25 +179,24 @@ def do_train():
     a_batch_size = 32
     add_count = 0
 
-    rb_imgs = np.empty(shape=(999,)+new_shape)
-    dataset_imgs_selected = np.empty(shape=(999,)+new_shape) #dataset_size_selected,)+new_shape)
+    rb_imgs = np.empty(shape=(9073,)+new_shape)
+    dataset_imgs_selected = np.empty(shape=(dataset_size_selected,)+new_shape)
     print("rb_imgs:"+str(rb_imgs.shape))
     print("dataset_imgs_selected:"+str(dataset_imgs_selected.shape))
     d2015, d2016, d2017, d2018, d2016rb, d2017rb = read_and_clean_csv_files()
 
     add_count, pred15 = read_img_to_array_and_age_to_df(d2015, 'hi2015_in_excel', rb_imgs, add_count)
-    #add_count, pred16 = read_img_to_array_and_age_to_df(d2016, 'hi2016_in_excel', rb_imgs, add_count)
-    #add_count, pred17 = read_img_to_array_and_age_to_df(d2017, 'hi2017_in_excel', rb_imgs, add_count)
-    #add_count, pred18 = read_img_to_array_and_age_to_df(d2018, 'hi2018_in_excel', rb_imgs, add_count)
-    #add_count, pred16rb = read_img_to_array_and_age_to_df(d2016rb, 'rb2016', rb_imgs, add_count)
-    #add_count, pred17rb = read_img_to_array_and_age_to_df(d2017rb, 'rb2017', rb_imgs, add_count)
+    add_count, pred16 = read_img_to_array_and_age_to_df(d2016, 'hi2016_in_excel', rb_imgs, add_count)
+    add_count, pred17 = read_img_to_array_and_age_to_df(d2017, 'hi2017_in_excel', rb_imgs, add_count)
+    add_count, pred18 = read_img_to_array_and_age_to_df(d2018, 'hi2018_in_excel', rb_imgs, add_count)
+    add_count, pred16rb = read_img_to_array_and_age_to_df(d2016rb, 'rb2016', rb_imgs, add_count)
+    add_count, pred17rb = read_img_to_array_and_age_to_df(d2017rb, 'rb2017', rb_imgs, add_count)
 
     all = pd.DataFrame({}, columns=pred15.columns.values)
-    all = pd.concat([pred15], axis=0, join='outer', ignore_index=False) #, pred16, pred17, pred18, pred16rb, pred17rb], axis=0, join='outer', ignore_index=False)
-    #all = all.rename(index=str, columns={'vill/oppdrett': 'vill'})
+    all = pd.concat([pred15, pred16, pred17, pred18, pred16rb, pred17rb], axis=0, join='outer', ignore_index=False)
 
-    #assert (len(all) == len(pred15)+len(pred16)+len(pred17)+len(pred18)+len(pred16rb)+len(pred17rb))
-    #assert len(all) == len(rb_imgs)
+    assert (len(all) == len(pred15)+len(pred16)+len(pred17)+len(pred18)+len(pred16rb)+len(pred17rb))
+    assert len(all) == len(rb_imgs)
     print("len(all)"+str(len(all)))
     print("len(rb_imgs))"+str(len(rb_imgs)))
 
@@ -206,7 +225,13 @@ def do_train():
         age = np.vstack(all.gytarar.values)
         dataset_imgs_selected = rb_imgs
     if to_predict == 'oppdrett':
-        age = np.vstack( all.oppdrett.values )
+        label_encoder = preprocessing.LabelEncoder()
+        integer_encoded = label_encoder.fit_transform(all.vill.values)
+        encoded = to_categorical(integer_encoded )
+        age = encoded
+        print("age encoded:**************************")
+        print(str(age[0:5]))
+        print(str(set(all.vill.values)))
         dataset_imgs_selected = rb_imgs
 
     print("dataset_imgs_selected.shape"+str(dataset_imgs_selected.shape))
@@ -281,7 +306,7 @@ def do_train():
     gray_model, gray_model_weights = create_inceptionV3_grayscale()
     gray_model = get_fresh_weights( gray_model, gray_model_weights )
     #z = dense2_linear_output(gray_model)
-    z = dense2_gytarar( gray_model )
+    z = dense3_vill( gray_model )
 
     scales = Model(inputs=gray_model.input, outputs=[z])
     learning_rate=0.1   #0.0004
@@ -298,12 +323,14 @@ def do_train():
 
     print("len(rb_imgs_val_rescaled):"+str(len(rb_imgs_val_rescaled)))
     print("len(age_val):"+str(len(age_val)))
+    print("shape age_val:"+str(age_val[0:5]))
+    print("age type:"+str(age_val.dtype))
 
     history_callback = scales.fit_generator(train_generator,
             steps_per_epoch=1600,
             epochs=150,
             callbacks=[early_stopper, tensorboard, checkpointer],
-            validation_data=(rb_imgs_val_rescaled,  np.array(age_val)))
+            validation_data=(rb_imgs_val_rescaled,  age_val))
 
     test_metrics = scales.evaluate(x=rb_imgs_test_rescaled, y=age_test) #, batch_size=None, verbose=1, sample_weight=None, steps=None, callbacks=None)
     test_predictions = scales.predict(rb_imgs_test_rescaled ) #, batch_size=None, verbose=0, steps=None, callbacks=None)
@@ -350,6 +377,12 @@ def base_output(gray_model):
     z = GlobalMaxPooling2D()(z)
     z = Dense(1024)(z)
     z = Activation('relu')(z)
+    return z
+
+def dense3_vill(gray_model):
+    z = base_output(gray_model)
+    z = Dense(3, input_dim=1024)(z)
+    z = Activation('softmax')(z)
     return z
 
 def dense2_gytarar(gray_model):
