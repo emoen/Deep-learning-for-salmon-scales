@@ -26,102 +26,7 @@ from keras.utils import to_categorical
 from sklearn import preprocessing
 
 from mse_missing_values import missing_mse, missing_mse2
-from v3_grayscale_softmax import baseline_model4
-
-def read_and_clean_csv_files():
-    global base_dir
-    d2015 = pd.read_csv(os.path.join(base_dir, '2015_5_param_edit.csv'))
-    d2016 = pd.read_csv(os.path.join(base_dir, '2016_5_param_edit.csv'))
-    d2017 = pd.read_csv(os.path.join(base_dir, '2017_5_param_edit.csv'))
-    d2018 = pd.read_csv(os.path.join(base_dir, '2018_5_param_edit.csv'))
-    d2016rb  = pd.read_csv(os.path.join(base_dir, 'rb2016_5_param_edit.csv'))
-    d2017rb  = pd.read_csv(os.path.join(base_dir, 'rb2017_5_param_edit.csv'))
-    print("excel length:"+str(len(d2015)+len(d2016)+len(d2017)+len(d2018)+len(d2016rb)+len(d2017rb)))
-
-    usikker_set = {'1/2', '0/1', '1/2/3', '0/1/2', '2/3', '2/3/4'}
-    d2016rb.sjø = pd.Series([-1.0 if f in usikker_set else f for f in d2016rb.sjø])
-    d2017rb.sjø = pd.Series([-1.0 if f in usikker_set else f for f in d2017rb.sjø])
-    d2016rb.sjø = d2016rb.sjø.astype('float64')
-    d2017rb.sjø = d2017rb.sjø.astype('float64')
-
-    d2015.sjø = pd.Series( [-1.0 if (f == 0 or np.isnan(f) ) else f for f in d2015.sjø] )
-    d2016.sjø = pd.Series( [-1.0 if (f == 0 or np.isnan(f) ) else f for f in d2016.sjø] )
-    d2017.sjø = pd.Series( [-1.0 if (f == 0 or np.isnan(f) ) else f for f in d2017.sjø] )
-    d2018.sjø = pd.Series( [-1.0 if (f == 0 or np.isnan(f) ) else f for f in d2018.sjø] )
-    d2016rb.sjø = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2016rb.sjø] )
-    d2017rb.sjø = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2017rb.sjø] )
-
-    d2015.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2015.smolt] )
-    d2016.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2016.smolt] )
-    d2017.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2017.smolt] )
-    d2018.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2018.smolt] )
-    d2016rb.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2016rb.smolt] )
-    d2017rb.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2017rb.smolt] )
-
-    d2015 = d2015.rename(index=str, columns={'vill/oppdrett': 'vill'})
-    d2015.vill = d2015.vill.astype('str')
-    d2015.at[d2015['vill']=='Vill', 'vill'] = 'vill'
-    d2015.at[d2015['vill']=='Oppdrett', 'vill'] = 'oppdrett'
-    d2015.at[d2015['vill']=='.', 'vill'] = 'ukjent'
-    d2015.at[d2015['vill']=='nan', 'vill'] = 'ukjent'
-    d2015.at[d2015['vill']=='Regnbueørret', 'vill'] = 'ukjent'
-    d2015.at[d2015['vill']=='Utsatt', 'vill'] = 'ukjent'
-
-    d2016 = d2016.rename(index=str, columns={'vill/oppdrett': 'vill'})
-    d2016.vill = d2016.vill.astype('str')
-    d2016.at[d2016['vill']=='Vill', 'vill'] = 'vill'
-    d2016.at[d2016['vill']=='Vill ', 'vill'] = 'vill'
-    d2016.at[d2016['vill']=='Oppdrett ', 'vill'] = 'oppdrett'
-    d2016.at[d2016['vill']=='Oppdrett', 'vill'] = 'oppdrett'
-    d2016.at[d2016['vill']=='.', 'vill'] = 'ukjent'
-    d2016.at[d2016['vill']=='Sjøørret', 'vill'] = 'ukjent'
-    d2016.at[d2016['vill']=='nan', 'vill'] = 'ukjent'
-    d2016.at[d2016['vill']=='Utsatt', 'vill'] = 'ukjent'
-
-    d2017 = d2017.rename(index=str, columns={'vill/oppdrett': 'vill'})
-    d2017.vill = d2017.vill.astype('str')
-    d2017.at[d2017['vill']=='Vill', 'vill'] = 'vill'
-    d2017.at[d2017['vill']=='Oppdrett', 'vill'] = 'oppdrett'
-    d2017.at[d2017['vill']=='Ikke lesbar', 'vill'] = 'ukjent'
-    d2017.at[d2017['vill']=='.', 'vill'] = 'ukjent'
-    d2017.at[d2017['vill']=='Utsatt', 'vill'] = 'ukjent'
-
-    d2018 = d2018.rename(index=str, columns={'vill/oppdrett': 'vill'})
-    d2018.vill = d2018.vill.astype('str')
-    d2018.at[d2018['vill']=='Vill', 'vill'] = 'vill'
-    d2018.at[d2018['vill']=='Oppdrett', 'vill'] = 'oppdrett'
-    d2018.at[d2018['vill']=='nan', 'vill'] = 'ukjent'
-    d2018.at[d2018['vill']=='Mangler skjell', 'vill'] = 'ukjent'
-    d2018.at[d2018['vill']=='Ikkje lesbar', 'vill'] = 'ukjent'
-    d2018.at[d2018['vill']=='Sjøaure', 'vill'] = 'ukjent'
-    d2018.at[d2018['vill']=='Mangler skjellprøve', 'vill'] = 'ukjent'
-    d2018.at[d2018['vill']=='Ikke lesbar', 'vill'] = 'ukjent'
-    d2018.at[d2018['vill']=='Skjell Mangler', 'vill'] = 'ukjent'
-    d2018.at[d2018['vill']=='Mangler Skjell', 'vill'] = 'ukjent'
-    d2018.at[d2018['vill']=='Ikke lesbart', 'vill'] = 'ukjent'
-    d2018.at[d2018['vill']=='Utsatt', 'vill'] = 'ukjent'
-    d2018.at[d2018['vill']=='.', 'vill'] = 'ukjent'
-    d2018.at[d2018['vill']=='Manglar skjell', 'vill'] = 'ukjent'
-    d2018.at[d2018['vill']=='Sjøørret', 'vill'] = 'ukjent'
-    d2018.at[d2018['vill']=='Ørret', 'vill'] = 'ukjent'
-
-    d2016rb = d2016rb.rename(index=str, columns={'vill/oppdrett': 'vill'})
-    d2016rb.vill = d2016rb.vill.astype('str')
-    d2016rb.at[d2016rb['vill']=='Vill', 'vill'] = 'vill'
-    d2016rb.at[d2016rb['vill']=='Oppdrett', 'vill'] = 'oppdrett'
-    d2016rb.at[d2016rb['vill']=='?', 'vill'] = 'ukjent'
-    d2016rb.at[d2016rb['vill']=='.', 'vill'] = 'ukjent'
-    d2016rb.at[d2016rb['vill']=='nan', 'vill'] = 'ukjent'
-
-    d2017rb = d2017rb.rename(index=str, columns={'vill/oppdrett': 'vill'})
-    d2017rb.vill = d2017rb.vill.astype('str')
-    d2017rb.at[d2017rb['vill']=='Vill', 'vill'] = 'vill'
-    d2017rb.at[d2017rb['vill']=='Oppdrett', 'vill'] = 'oppdrett'
-    d2017rb.at[d2017rb['vill']=='?', 'vill'] = 'ukjent'
-    d2017rb.at[d2017rb['vill']=='.', 'vill'] = 'ukjent'
-    d2017rb.at[d2017rb['vill']=='nan', 'vill'] = 'ukjent'
-
-    return d2015, d2016, d2017, d2018, d2016rb, d2017rb
+from clean_y_true import read_and_clean_csv_files
 
 def read_img_to_array_and_age_to_df( pandas_df, img_dir, tf_images, end_count):
     global new_shape, id_column
@@ -166,7 +71,7 @@ dataset_size_smolt_sjo = 9073
 dataset_size_smolt = 6246
 dataset_size_sjo = 9073
 dataset_size_gytar = 9073
-dataset_size_oppdrett = 9073
+dataset_size_oppdrett = 999 #9073
 
 dataset_size_selected = dataset_size_oppdrett
 to_predict = 'oppdrett'
@@ -179,23 +84,24 @@ def do_train():
     a_batch_size = 32
     add_count = 0
 
-    rb_imgs = np.empty(shape=(9073,)+new_shape)
+    rb_imgs = np.empty(shape=(999,)+new_shape) #9073,)+new_shape)
     dataset_imgs_selected = np.empty(shape=(dataset_size_selected,)+new_shape)
     print("rb_imgs:"+str(rb_imgs.shape))
     print("dataset_imgs_selected:"+str(dataset_imgs_selected.shape))
-    d2015, d2016, d2017, d2018, d2016rb, d2017rb = read_and_clean_csv_files()
+    d2015, d2016, d2017, d2018, d2016rb, d2017rb = read_and_clean_csv_files( base_dir )
 
     add_count, pred15 = read_img_to_array_and_age_to_df(d2015, 'hi2015_in_excel', rb_imgs, add_count)
-    add_count, pred16 = read_img_to_array_and_age_to_df(d2016, 'hi2016_in_excel', rb_imgs, add_count)
-    add_count, pred17 = read_img_to_array_and_age_to_df(d2017, 'hi2017_in_excel', rb_imgs, add_count)
-    add_count, pred18 = read_img_to_array_and_age_to_df(d2018, 'hi2018_in_excel', rb_imgs, add_count)
-    add_count, pred16rb = read_img_to_array_and_age_to_df(d2016rb, 'rb2016', rb_imgs, add_count)
-    add_count, pred17rb = read_img_to_array_and_age_to_df(d2017rb, 'rb2017', rb_imgs, add_count)
+    #add_count, pred16 = read_img_to_array_and_age_to_df(d2016, 'hi2016_in_excel', rb_imgs, add_count)
+    #add_count, pred17 = read_img_to_array_and_age_to_df(d2017, 'hi2017_in_excel', rb_imgs, add_count)
+    #add_count, pred18 = read_img_to_array_and_age_to_df(d2018, 'hi2018_in_excel', rb_imgs, add_count)
+    #add_count, pred16rb = read_img_to_array_and_age_to_df(d2016rb, 'rb2016', rb_imgs, add_count)
+    #add_count, pred17rb = read_img_to_array_and_age_to_df(d2017rb, 'rb2017', rb_imgs, add_count)
 
     all = pd.DataFrame({}, columns=pred15.columns.values)
-    all = pd.concat([pred15, pred16, pred17, pred18, pred16rb, pred17rb], axis=0, join='outer', ignore_index=False)
+    #all = pd.concat([pred15, pred16, pred17, pred18, pred16rb, pred17rb], axis=0, join='outer', ignore_index=False)
+    all = pd.concat([pred15], axis=0, join='outer', ignore_index=False)
 
-    assert (len(all) == len(pred15)+len(pred16)+len(pred17)+len(pred18)+len(pred16rb)+len(pred17rb))
+    #assert (len(all) == len(pred15)+len(pred16)+len(pred17)+len(pred18)+len(pred16rb)+len(pred17rb))
     assert len(all) == len(rb_imgs)
     print("len(all)"+str(len(all)))
     print("len(rb_imgs))"+str(len(rb_imgs)))
@@ -309,13 +215,13 @@ def do_train():
     z = dense3_vill( gray_model )
 
     scales = Model(inputs=gray_model.input, outputs=[z])
-    learning_rate=0.1   #0.0004
+    learning_rate=0.01   #0.0004
     adam = optimizers.Adam(lr=learning_rate)
 
-    inception = baseline_model4()
-    z = inception.output
-    scales = Model(inputs=inception.input, outputs=z)
-    scales.compile(loss='categorical_crossentropy', optimizer=adam, metrics=[matthews_correlation, 'accuracy' ] ) #, 'mse', 'mape'] )
+    #inception = baseline_model4()
+    #z = inception.output
+    #scales = Model(inputs=inception.input, outputs=z)
+    scales.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=[matthews_correlation, 'accuracy' ] ) #, 'mse', 'mape'] )
     for layer in scales.layers:
         layer.trainable = True
 
