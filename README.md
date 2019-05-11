@@ -26,7 +26,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
   * Training-set (negative example, positive example) (0,1), (1,0): (3772 2579) - 3772/(3772+2579) = 3772/6351=0.59
   * Validation-set (negative example, positive example)(0,1), (1,0): (809 552) - 809/(552+809)= 0.59
   * test-set (negative example, positive example)(0,1), (1,0): (809 552)
-  * Test accuracy: 
+  * Test accuracy: 0.58, best val_acc
   * class frequency: {vill:5427, oppdrett:505, ukjent:3141}
 * missing_loss1 - missing_mse(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
 * missing_loss2 - missing_mse2(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
