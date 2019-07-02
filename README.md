@@ -25,7 +25,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 * (4) train/val/test size: 70, 15, 15 
   * val_acc: 0.94
   * class frequency: {vill:505, oppdrett:505}
-  * CNN: nasNet mobile, resolution 244x244
+  * CNN: nasNet mobile, resolution 224x224
 * missing_loss1 - missing_mse(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
 * missing_loss2 - missing_mse2(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
 * missing_loss3 - classic mse with 2 outputs <br />
