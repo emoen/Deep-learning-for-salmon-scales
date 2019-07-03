@@ -15,7 +15,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Salmon missing_loss2| river & sea|0.5915  |2.992 |0.974 |0.707|x    |9073     | linear | x |
 | Salmon missing_loss3| river & sea|2.0107  |2.011 |0.744 |0.607|x    |9073     | linear | x |
 | Salmon (3)          | Spawned    | 0.393  |x     |x     |0.976|0.951|9073     | softmax| 422 (4.7%) |
-| Salmon (4)          | Wild/farmed|0.2934  |x     |x     |0.91 |x    |1010     | softmax|{0: 1, 1: 1}  |
+| Salmon (4)          | Wild/farmed|0.2934  |x     |x     |0.927|x    |1010     | softmax|{0: 1, 1: 1}  |
 
 * (1) is test-set <br/>
 * (2) is validation-set <br/>
@@ -23,9 +23,9 @@ Comparison of different metrics for prediction of salmon scales. I have also add
   * Training-set (negative example, positive example): (4861, 129)
   * Validation-set (negative example, positive example): (3541 89) - 89/(3541+89)= 0.025, 1-0.25 = 0.975
 * (4) train/val/test size: 70, 15, 15 
-  * val_acc: 0.94
+  * val_acc: 0.96
   * class frequency: {vill:505, oppdrett:505}
-  * CNN: nasNet mobile, resolution 224x224
+  * CNN: efficientNet-B4, 380x380
 * missing_loss1 - missing_mse(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
 * missing_loss2 - missing_mse2(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
 * missing_loss3 - classic mse with 2 outputs <br />
