@@ -2,8 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 
-def read_and_clean_csv_files( base_dir ):
-
+def read_csv(base_dir):
     d2015 = pd.read_csv(os.path.join(base_dir, '2015_5_param_edit.csv'))
     d2016 = pd.read_csv(os.path.join(base_dir, '2016_5_param_edit.csv'))
     d2017 = pd.read_csv(os.path.join(base_dir, '2017_5_param_edit.csv'))
@@ -11,6 +10,18 @@ def read_and_clean_csv_files( base_dir ):
     d2016rb  = pd.read_csv(os.path.join(base_dir, 'rb2016_5_param_edit.csv'))
     d2017rb  = pd.read_csv(os.path.join(base_dir, 'rb2017_5_param_edit.csv'))
     print("excel length:"+str(len(d2015)+len(d2016)+len(d2017)+len(d2018)+len(d2016rb)+len(d2017rb)))
+    return d2015,d2016,d2017,d2018,d2016rb,d2017rb
+
+def clean_gytarar(d2015, d2016, d2017, d2018, d2016rb, d2017rb):
+    d2015.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2015.gytarar.values] )
+    d2016.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2016.gytarar.values] )
+    d2017.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2017.gytarar.values] )
+    d2018.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2018.gytarar.values] )
+    d2016rb.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2016rb.gytarar.values] )
+    d2017rb.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2017rb.gytarar.values] )
+    return d2015, d2016, d2017, d2018, d2016rb, d2017rb
+
+def clean_sea(d2015, d2016, d2017, d2018, d2016rb, d2017rb):
 
     usikker_set = {'1/2', '0/1', '1/2/3', '0/1/2', '2/3', '2/3/4'}
     d2016rb.sjø = pd.Series([-1.0 if f in usikker_set else f for f in d2016rb.sjø])
@@ -24,14 +35,18 @@ def read_and_clean_csv_files( base_dir ):
     d2018.sjø = pd.Series( [-1.0 if (f == 0 or np.isnan(f) ) else f for f in d2018.sjø] )
     d2016rb.sjø = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2016rb.sjø] )
     d2017rb.sjø = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2017rb.sjø] )
+    return d2015, d2016, d2017, d2018, d2016rb, d2017rb
 
+def clean_smolt(d2015, d2016, d2017, d2018, d2016rb, d2017rb):
     d2015.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2015.smolt] )
     d2016.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2016.smolt] )
     d2017.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2017.smolt] )
     d2018.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2018.smolt] )
     d2016rb.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2016rb.smolt] )
     d2017rb.smolt = pd.Series( [-1.0 if (f == 0 or np.isnan(f)) else f for f in d2017rb.smolt] )
+    return d2015, d2016, d2017, d2018, d2016rb, d2017rb
 
+def clean_farmed_salmon(d2015, d2016, d2017, d2018, d2016rb, d2017rb):
     d2015 = d2015.rename(index=str, columns={'vill/oppdrett': 'vill'})
     d2015.vill = d2015.vill.astype('str')
     d2015.at[d2015['vill']=='Vill', 'vill'] = 'vill'
@@ -94,7 +109,12 @@ def read_and_clean_csv_files( base_dir ):
     d2017rb.at[d2017rb['vill']=='?', 'vill'] = 'ukjent'
     d2017rb.at[d2017rb['vill']=='.', 'vill'] = 'ukjent'
     d2017rb.at[d2017rb['vill']=='nan', 'vill'] = 'ukjent'
-
     return d2015, d2016, d2017, d2018, d2016rb, d2017rb
 
-
+def read_and_clean_farmed_salmon_csv_files( base_dir ):
+    d2015,d2016,d2017,d2018,d2016rb,d2017rb = read_csv(base_dir)
+    d2015,d2016,d2017,d2018,d2016rb,d2017rb = clean_sea(d2015, d2016, d2017, d2018, d2016rb, d2017rb)
+    d2015,d2016,d2017,d2018,d2016rb,d2017rb = clean_smolt(d2015, d2016, d2017, d2018, d2016rb, d2017rb)
+    d2015,d2016,d2017,d2018,d2016rb,d2017rb = clean_farmed_salmon(d2015, d2016, d2017, d2018, d2016rb, d2017rb)
+    d2015,d2016,d2017,d2018,d2016rb,d2017rb = clean_gytarar(d2015, d2016, d2017, d2018, d2016rb, d2017rb)
+    return d2015, d2016, d2017, d2018, d2016rb, d2017rb
