@@ -66,10 +66,11 @@ Confusion matrix:
 |weighted avg|0.97     | 0.96 |  0.97  | 1361  |  
 
 confusion matrix:
+
 |class     |non spawnd|spawnd|
 |----------|--------|----|
 |non spawnd|1296    |30  |
-|spawnd    |<b>19<b\>|16 |
+|spawnd    |19      |16 |
 
 
 ```
