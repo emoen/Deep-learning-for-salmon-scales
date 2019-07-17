@@ -6,7 +6,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 (MCC: mathews correlation coefficient)<br />
 
 | Species             | Predict    |val_LOSS| MSE  | MAPE | ACC | MCC |#trained |activ. f| classWeights |
-| --------------------| -----------|--------|------|------|-----|-----|---------|--------|-------------------|
+| --------------------| -----------|--------|------|------|-----|-----|---------|--------|--------------|
 | Greenland Halibut(1)| age        | x      |2.65  |0.124 |0.262|x    |8875     | linear | x | 
 | Greenland Halibut(2)| age        | -"-    |2.82  |0.136 |0.294|x    |8875     | linear | x |
 | Salmon              | sea age    | -"-    |0.239 |0.141 |0.822|x    |ca 9000  | linear | x |
@@ -33,11 +33,11 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 Note val_acc is 0.7068 in almost every epoch (except 2. epoch of missing_loss2 training.) <br />
 
 * (4) Precision, recall and f1-score from scikit-learn: https://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html
+
 |            |  precision|    recall|  f1-score|   support|
 | -----------| ----------|----------|----------|----------|
 |     opprett|       0.95|      0.93|      0.94|        76|
 |        vill|       0.93|      0.95|      0.94|        75|
-
 |   micro avg|       0.94|      0.94|      0.94|       151|
 |   macro avg|       0.94|      0.94|      0.94|       151|
 |weighted avg|       0.94|      0.94|      0.94|       151|
