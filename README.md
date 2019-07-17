@@ -32,6 +32,17 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 
 Note val_acc is 0.7068 in almost every epoch (except 2. epoch of missing_loss2 training.) <br />
 
+Precision, recall and f1-score from scikit-learn: https://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html
+|            |  precision|    recall|  f1-score|   support|
+
+|     opprett|       0.95|      0.93|      0.94|        76|
+|        vill|       0.93|      0.95|      0.94|        75|
+
+|   micro avg|       0.94|      0.94|      0.94|       151|
+|   macro avg|       0.94|      0.94|      0.94|       151|
+|weighted avg|       0.94|      0.94|      0.94|       151|
+
+
 Missing_loss1/2 is same the same network - but with Dense(2, 'linear') so it predicts both sea and river age.
 ```
 >>> df = pd.DataFrame({}, d2015.columns.values)
