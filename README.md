@@ -43,6 +43,7 @@ Note val_acc is 0.7068 in almost every epoch (except 2. epoch of missing_loss2 t
 |weighted avg|       0.94|      0.94|      0.94|       151|
 
 Confusion matrix
+
 |class   | oppdrett| vill |
 |--------|---------|------|
 |oppdrett|       71|     5|
