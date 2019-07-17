@@ -15,7 +15,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Salmon missing_loss2| river & sea|0.5915  |2.992 |0.974 |0.707|x    |9073     | linear | x |
 | Salmon missing_loss3| river & sea|2.0107  |2.011 |0.744 |0.607|x    |9073     | linear | x |
 | Salmon (3)          | Spawned    |0.113   |x     |x     |0.968|x    |9073     | softmax|{0: 0.5, 1: 19} |
-| Salmon (4)          | Wild/farmed|0.0949  |x     |x     |0.927|x    |1010     | softmax|{0: 1, 1: 1}  |
+| Salmon (4)          | Wild/farmed|0.213   |x     |x     |0.94 |x    |1010     | softmax|{0: 1, 1: 1}  |
 
 * (1) is test-set <br/>
 * (2) is validation-set <br/>
@@ -23,7 +23,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
   * Training-set (negative example, positive example): (4861, 129)
   * Validation-set (negative example, positive example): (3541 89) - 89/(3541+89)= 0.025, 1-0.25 = 0.975
 * (4) train/val/test size: 70, 15, 15 
-  * val_acc: 0.96
+  * val_acc: 0.9276
   * class frequency: {vill:505, oppdrett:505}
   * CNN: efficientNet-B4, 380x380
 * missing_loss1 - missing_mse(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
@@ -41,6 +41,12 @@ Note val_acc is 0.7068 in almost every epoch (except 2. epoch of missing_loss2 t
 |   micro avg|       0.94|      0.94|      0.94|       151|
 |   macro avg|       0.94|      0.94|      0.94|       151|
 |weighted avg|       0.94|      0.94|      0.94|       151|
+
+Confusion matrix
+|class   | oppdrett| vill |
+|--------|---------|------|
+|oppdrett|       71|     5|
+|vill    |        4|    71|
 
 
 Missing_loss1/2 is same the same network - but with Dense(2, 'linear') so it predicts both sea and river age.
