@@ -19,7 +19,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Salmon (7)          | spawned    |0.6417  |x     |x     |0.944|x    |476      | sigmoid| {0: 1, 1: 1} |
 | Salmon (6)          | Wild/farmed|x       |x     |x     |x    |x    |5932     | softmax| {0: 5.87, 1: 0.54} |
 | Salmon (4)          | Wild/farmed|0.213   |x     |x     |0.94 |x    |1010     | softmax| {0: 1, 1: 1} |
-| Salmon (7)          | Wild/farmed|x       |x     |x     |x    |x    |5932     | sigmoid| {0: 5.87, 1: 0.54} |
+| Salmon (7)          | Wild/farmed|0.693   |x     |x     |0.075|x    |5932     | sigmoid| {0: 5.87, 1: 0.54} |
 
 * (1) is test-set <br/>
 * (2) is validation-set <br/>
@@ -60,6 +60,23 @@ Confusion matrix:
 |--------|--------|----|
 |oppdrett|71      |5   |
 |vill    |4       |71  |
+
+* Farmed salmon:(7) Precision, recall and f1-score from scikit-learn: 
+
+|            |precision|recall|f1-score|support|
+|------------|---------|------|--------|-------|
+|opprett     |0.08	    |1.00	 |0.14	   |66     |
+|vill        |0.00     |	0.00 |	0.00	  |823    |
+|accuracy    |    	    |	     |0.08	   |890    |
+|macro avg   |0.94	    |0.94  |	0.94   |890    |
+|weighted avg|0.01	    |0.08  |	0.01   |890    |  
+
+Confusion matrix:
+
+|class   |oppdrett|vill|
+|--------|--------|----|
+|oppdrett|67      |0   |
+|vill    |823     |0  |
 
 * Spawner:(3) Precision, recall and f1-score from scikit-learn
 
