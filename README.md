@@ -17,7 +17,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Salmon (3)          | Spawned    |0.113   |x     |x     |0.964|x    |9073     | softmax| {0: 0.5, 1: 19} |
 | Salmon (4)          | Wild/farmed|0.213   |x     |x     |0.94 |x    |1010     | softmax| {0: 1, 1: 1} |
 | Salmon (5)          | Spawned    |0.132   |x     |x     |0.958|x    |476      | softmax| {0: 1, 1: 1} |
-| Salmon (6)          | Wild/farmed|x       |x     |x     |x    |x    |5000     | softmax| {0: ?, 1: ?} |
+| Salmon (6)          | Wild/farmed|x       |x     |x     |x    |x    |5932     | softmax| {0: 5.87, 1: 0.54} |
 | Salmon (7)          | spawned    |        |x     |x     |     |x    |476     | sigmoid| {0: 1, 1: 1} |
 
 * (1) is test-set <br/>
