@@ -15,11 +15,11 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Salmon missing_loss2| river & sea|0.5915  |2.992 |0.974 |0.707|x    |9073     | linear | x |
 | Salmon missing_loss3| river & sea|2.0107  |2.011 |0.744 |0.607|x    |9073     | linear | x |
 | Salmon (3)          | Spawned    |0.113   |x     |x     |0.964|x    |9073     | softmax| {0: 0.5, 1: 19} |
-| Salmon (4)          | Wild/farmed|0.213   |x     |x     |0.94 |x    |1010     | softmax| {0: 1, 1: 1} |
 | Salmon (5)          | Spawned    |0.132   |x     |x     |0.958|x    |476      | softmax| {0: 1, 1: 1} |
+| Salmon (7)          | spawned    |0.6417  |x     |x     |0.944|x    |476      | sigmoid| {0: 1, 1: 1} |
 | Salmon (6)          | Wild/farmed|x       |x     |x     |x    |x    |5932     | softmax| {0: 5.87, 1: 0.54} |
-| Salmon (7)          | spawned    |        |x     |x     |     |x    |476      | sigmoid| {0: 1, 1: 1} |
-| Salmon (6)          | Wild/farmed|x       |x     |x     |x    |x    |5932     | sigmoid| {0: 5.87, 1: 0.54} |
+| Salmon (4)          | Wild/farmed|0.213   |x     |x     |0.94 |x    |1010     | softmax| {0: 1, 1: 1} |
+| Salmon (7)          | Wild/farmed|x       |x     |x     |x    |x    |5932     | sigmoid| {0: 5.87, 1: 0.54} |
 
 * (1) is test-set <br/>
 * (2) is validation-set <br/>
@@ -95,6 +95,22 @@ confusion matrix:
 |non spawnd|  38    |0   |
 |spawnd    |   3    |30  |
 
+* Spawner:(7) Precision, recall and f1-score from scikit-learn
+
+|            |precision|recall|f1-score|support|
+|------------|---------|------|--------|-------|
+|Not spawnd  |0.90     |1.00  |  0.95  | 38    |
+|spawnd      |1.00     |0.88  |  0.94  | 33    |
+|accuracy    |	        |    	 |  0.94  | 71    |
+|macro avg   |0.95     | 0.94 |  0.94  | 71    |
+|weighted avg|0.95     | 0.94 |  0.94  | 71    |  
+
+confusion matrix:
+
+|class     |non spawnd|spawnd|
+|----------|--------|----|
+|non spawnd|  38    |0   |
+|spawnd    |   4    |29  |
 ```
 >>> df = pd.DataFrame({}, d2015.columns.values)
 >>> df = df.append(d2015)
