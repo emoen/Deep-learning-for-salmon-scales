@@ -5,7 +5,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 (MAPE: Mean absolute percentage error)<br />
 (MCC: mathews correlation coefficient)<br />
 
-| Species             | Predict    |val_LOSS| MSE  | MAPE | ACC | MCC |#trained |activ. f| classWeights |
+| Species             | Predict    |testLOSS| MSE  | MAPE | ACC | MCC |#trained |activ. f| classWeights |
 | --------------------| -----------|--------|------|------|-----|-----|---------|--------|--------------|
 | Greenland Halibut(1)| age        | x      |2.65  |0.124 |0.262|x    |8875     | linear | x | 
 | Greenland Halibut(2)| age        | -"-    |2.82  |0.136 |0.294|x    |8875     | linear | x |
@@ -14,12 +14,16 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Salmon missing_loss1| river & sea|9.4372  |2.955 |0.97  |0.707|x    |9073     | linear | x |
 | Salmon missing_loss2| river & sea|0.5915  |2.992 |0.974 |0.707|x    |9073     | linear | x |
 | Salmon missing_loss3| river & sea|2.0107  |2.011 |0.744 |0.607|x    |9073     | linear | x |
-| Salmon (3)          | Spawned    |0.113   |x     |x     |0.968|x    |9073     | softmax| {0: 0.5, 1: 19} |
+| Salmon (3)          | Spawned    |0.113   |x     |x     |0.964|x    |9073     | softmax| {0: 0.5, 1: 19} |
 | Salmon (4)          | Wild/farmed|0.213   |x     |x     |0.94 |x    |1010     | softmax| {0: 1, 1: 1} |
+| Salmon (5)          | Spawned    |0.132   |x     |x     |0.958|x    |476      | softmax| {0: 1, 1: 1} |
+| Salmon (6)          | Wild/farmed|x       |x     |x     |x    |x    |5000     | softmax| {0: ?, 1: ?} |
 
 * (1) is test-set <br/>
 * (2) is validation-set <br/>
-* (3) Validation set was 40%, test set 5%. 
+* (3) train/val/test size: 70, 15, 15
+  * 
+  *
   * Training-set (negative example, positive example): (4861, 129)
   * Validation-set (negative example, positive example): (3541 89) - 89/(3541+89)= 0.025, 1-0.25 = 0.975
 * (4) train/val/test size: 70, 15, 15
@@ -70,8 +74,24 @@ confusion matrix:
 |class     |non spawnd|spawnd|
 |----------|--------|----|
 |non spawnd|1296    |30  |
-|spawnd    |19      |16 |
+|spawnd    |19      |16  |
 
+* Spawner:(5) Precision, recall and f1-score from scikit-learn
+
+|            |precision|recall|f1-score|support|
+|------------|---------|------|--------|-------|
+|Not spawnd  |0.93     |1.00  |  0.96  | 38    |
+|spawnd      |1.00     |0.91  |  0.95  | 33    |
+|accuracy    |	        |    	 |  0.96  | 71    |
+|macro avg   |0.96     | 0.95 |  0.96  | 71    |
+|weighted avg|0.97     | 0.96 |  0.96  | 71    |  
+
+confusion matrix:
+
+|class     |non spawnd|spawnd|
+|----------|--------|----|
+|non spawnd|  38    |0   |
+|spawnd    |   3    |30  |
 
 ```
 >>> df = pd.DataFrame({}, d2015.columns.values)
