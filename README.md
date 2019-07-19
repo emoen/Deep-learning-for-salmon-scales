@@ -218,3 +218,10 @@ Name: gytarar, dtype: int64
 422
 >>>
 ```
+
+River age distribution:
+```
+>>> unique, counts = np.unique(all_smolt_age, return_counts=True)
+>>> dict(zip(unique, counts))
+{-1.0: 2827, 1.0: 195, 2.0: 2097, 3.0: 3528, 4.0: 377, 5.0: 45, 6.0: 4}
+```
