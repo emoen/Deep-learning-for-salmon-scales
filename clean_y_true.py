@@ -13,12 +13,12 @@ def read_csv(base_dir):
     return d2015,d2016,d2017,d2018,d2016rb,d2017rb
 
 def clean_gytarar(d2015, d2016, d2017, d2018, d2016rb, d2017rb):
-    d2015.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2015.gytarar.values] )
-    d2016.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2016.gytarar.values] )
-    d2017.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2017.gytarar.values] )
-    d2018.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2018.gytarar.values] )
-    d2016rb.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2016rb.gytarar.values] )
-    d2017rb.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2017rb.gytarar.values] )
+    d2015.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2015.gytarar.values], index=d2015.index )
+    d2016.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2016.gytarar.values], index=d2016.index )
+    d2017.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2017.gytarar.values], index=d2017.index )
+    d2018.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2018.gytarar.values], index=d2018.index )
+    d2016rb.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2016rb.gytarar.values], index=d2016rb.index )
+    d2017rb.gytarar =pd.Series([False if pd.isnull(f) else True for f in d2017rb.gytarar.values], index=d2017rb.index )
     return d2015, d2016, d2017, d2018, d2016rb, d2017rb
 
 def clean_sea(d2015, d2016, d2017, d2018, d2016rb, d2017rb):
@@ -111,7 +111,7 @@ def clean_farmed_salmon(d2015, d2016, d2017, d2018, d2016rb, d2017rb):
     d2017rb.at[d2017rb['vill']=='nan', 'vill'] = 'ukjent'
     return d2015, d2016, d2017, d2018, d2016rb, d2017rb
 
-def read_and_clean_farmed_salmon_csv_files( base_dir ):
+def read_and_clean_4_param_csv( base_dir ):
     d2015,d2016,d2017,d2018,d2016rb,d2017rb = read_csv(base_dir)
     d2015,d2016,d2017,d2018,d2016rb,d2017rb = clean_sea(d2015, d2016, d2017, d2018, d2016rb, d2017rb)
     d2015,d2016,d2017,d2018,d2016rb,d2017rb = clean_smolt(d2015, d2016, d2017, d2018, d2016rb, d2017rb)

@@ -5,8 +5,8 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 (MAPE: Mean absolute percentage error)<br />
 (MCC: mathews correlation coefficient)<br />
 
-| Species             | Predict    |val_LOSS| MSE  | MAPE | ACC | MCC |#trained |activ. f| class imb. pos ex |
-| --------------------| -----------|--------|------|------|-----|-----|---------|--------|-------------------|
+| Species             | Predict    |val_LOSS| MSE  | MAPE | ACC | MCC |#trained |activ. f| classWeights |
+| --------------------| -----------|--------|------|------|-----|-----|---------|--------|--------------|
 | Greenland Halibut(1)| age        | x      |2.65  |0.124 |0.262|x    |8875     | linear | x | 
 | Greenland Halibut(2)| age        | -"-    |2.82  |0.136 |0.294|x    |8875     | linear | x |
 | Salmon              | sea age    | -"-    |0.239 |0.141 |0.822|x    |ca 9000  | linear | x |
@@ -14,8 +14,8 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Salmon missing_loss1| river & sea|9.4372  |2.955 |0.97  |0.707|x    |9073     | linear | x |
 | Salmon missing_loss2| river & sea|0.5915  |2.992 |0.974 |0.707|x    |9073     | linear | x |
 | Salmon missing_loss3| river & sea|2.0107  |2.011 |0.744 |0.607|x    |9073     | linear | x |
-| Salmon (3)          | Spawned    | 0.393  |x     |x     |0.976|0.951|9073     | softmax| 422 (4.7%) |
-| Salmon (4)          | Wild/farmed|x       |x     |x     |     |     |         |        |  |
+| Salmon (3)          | Spawned    |0.113   |x     |x     |0.968|x    |9073     | softmax|{0: 0.5, 1: 19} |
+| Salmon (4)          | Wild/farmed|0.213   |x     |x     |0.94 |x    |1010     | softmax|{0: 1, 1: 1}  |
 
 * (1) is test-set <br/>
 * (2) is validation-set <br/>
@@ -23,14 +23,32 @@ Comparison of different metrics for prediction of salmon scales. I have also add
   * Training-set (negative example, positive example): (4861, 129)
   * Validation-set (negative example, positive example): (3541 89) - 89/(3541+89)= 0.025, 1-0.25 = 0.975
 * (4) train/val/test size: 70, 15, 15 
-  * Training-set (negative example, positive example) (0,1), (1,0): (3772 2579) - 3772/(3772+2579) = 3772/6351=0.59
-  * Validation-set (negative example, positive example)(0,1), (1,0): (809 552) - 809/(552+809)= 0.59
-  * test-set (negative example, positive example)(0,1), (1,0): (809 552)
+  * val_acc: 0.9276
+  * class frequency: {vill:505, oppdrett:505}
+  * CNN: efficientNet-B4, 380x380
 * missing_loss1 - missing_mse(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
 * missing_loss2 - missing_mse2(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
 * missing_loss3 - classic mse with 2 outputs <br />
 
 Note val_acc is 0.7068 in almost every epoch (except 2. epoch of missing_loss2 training.) <br />
+
+* (4) Precision, recall and f1-score from scikit-learn: https://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html
+
+|            |  precision|    recall|  f1-score|   support|
+| -----------| ----------|----------|----------|----------|
+|     opprett|       0.95|      0.93|      0.94|        76|
+|        vill|       0.93|      0.95|      0.94|        75|
+|   micro avg|       0.94|      0.94|      0.94|       151|
+|   macro avg|       0.94|      0.94|      0.94|       151|
+|weighted avg|       0.94|      0.94|      0.94|       151|
+
+Confusion matrix
+
+|class   | oppdrett| vill |
+|--------|---------|------|
+|oppdrett|       71|     5|
+|vill    |        4|    71|
+
 
 Missing_loss1/2 is same the same network - but with Dense(2, 'linear') so it predicts both sea and river age.
 ```
