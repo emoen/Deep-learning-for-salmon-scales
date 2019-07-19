@@ -13,7 +13,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Greenland Halibut(2) | age        | -"-    |2.82  |0.136 |0.294|x    |8875     | linear | x |
 | Salmon               | sea age    | -"-    |0.239 |0.141 |0.822|x    |ca 9000  | linear | x |
 | Salmon               | river age  | -"-    |0.431 |0.252 |0.585|x    |6300     | linear | x |
-| Salmon B4(9)         | river age  |2.35    |2.34  |x     |0.37 |x    |9073     | linear | x |
+| Salmon B4(9)         | river age  |2.35    |2.35  |x     |0.37 |x    |9073     | linear | x |
 | Salmon missing_loss1 | river & sea|9.4372  |2.955 |0.97  |0.707|x    |9073     | linear | x |
 | Salmon missing_loss2 | river & sea|0.5915  |2.992 |0.974 |0.707|x    |9073     | linear | x |
 | Salmon missing_loss3 | river & sea|2.0107  |2.011 |0.744 |0.607|x    |9073     | linear | x |
