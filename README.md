@@ -2,7 +2,7 @@
 
 Comparison of different metrics for prediction of salmon scales. I have also added metric from Greenland otolith prediction for comparison. The metrics is from the validation set. Except the first line which is from Greenland Halibut and is calculated from mean of pairs of right and left otolith. <br />
 * In the wild/farmed dataset there is 5427 wild salmon, and 505 (8.5%) farmed salmon. Salmon classified as something else like unknown or trout are not included in training. 
-* In the spawning/non-spawning dataset there is 8835 non-spanwning scales and 238 spawned scales (2.6%). 
+* In the spawning/non-spawning dataset there is 8835 non-spanwning scales and 238 spawned scales (2.6%). This is wrong! Should be 422 (4.6%)
 
 (MAPE: Mean absolute percentage error)<br />
 (MCC: mathews correlation coefficient)<br />
@@ -183,4 +183,35 @@ Name: sjø, dtype: int64
  6.0       8
 Name: smolt, dtype: int64
 
+```
+
+Spawners in the dataset:
+```
+>>> d2015.gytarar.value_counts()
+2-2-g-1                   3
+2-3-g-1                   3
+?-2-g-1-g                 1
+2-2-g-2                   1
+3-3-g-1                   1
+2-2-g+                    1
+?-2-g-1+                  1
+3-2-g-1                   1
+2-2-g-2 eller2-2-g-1-1    1
+3-2-g-2                   1
+Name: gytarar, dtype: int64
+>>> d2015.gytarar.value_counts().sum()
+14
+>>> d2016.gytarar.value_counts().sum()
+17
+>>> d2017.gytarar.value_counts().sum()
+24
+>>> d2018.gytarar.value_counts().sum()
+29
+>>> d2016rb.gytarar.value_counts().sum()
+112
+>>> d2017rb.gytarar.value_counts().sum()
+226
+>>> 14+17+24+29+112+226
+422
+>>>
 ```
