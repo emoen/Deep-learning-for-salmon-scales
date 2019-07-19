@@ -1,6 +1,8 @@
 # salmon-scale
 
-Comparison of different metrics for prediction of salmon scales. I have also added metric from Greenland otolith prediction for comparison. The metrics is from the validation set. Except the first line which is from Greenland Halibut and is calculated from mean of pairs of right and left otolith.<br />
+Comparison of different metrics for prediction of salmon scales. I have also added metric from Greenland otolith prediction for comparison. The metrics is from the validation set. Except the first line which is from Greenland Halibut and is calculated from mean of pairs of right and left otolith. <br />
+* In the wild/farmed dataset there is 5427 wild salmon, and 505 (8.5%) farmed salmon. Salmon classified as something else like unknown or trout are not included in training. 
+* In the spawning/non-spawning dataset there is 8835 non-spanwning scales and 238 spawned scales (2.6%). 
 
 (MAPE: Mean absolute percentage error)<br />
 (MCC: mathews correlation coefficient)<br />
