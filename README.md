@@ -21,6 +21,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Salmon (5)           | Spawned    |0.132   |x     |x     |0.958|x    |476      | softmax| {0: 1, 1: 1} |
 | Salmon (8)           | spawned    |0.6417  |x     |x     |0.944|x    |476      | sigmoid| {0: 1, 1: 1} |
 | Salmon (6)           | Wild/farmed|0.155   |x     |x     |0.9697|x   |5932     | softmax| {0: 5.87, 1: 0.54} |
+| Salmon (10)lr=0.0005 | Wild/farmed|1.21    |x     |x     |0.924 |x   |5932     | softmax| {0: 5.87, 1: 0.54} |
 | Salmon (4)           | Wild/farmed|0.213   |x     |x     |0.94 |x    |1010     | softmax| {0: 1, 1: 1} |
 | Salmon (7)           | Wild/farmed|0.693   |x     |x     |0.075|x    |5932     | sigmoid| {0: 5.87, 1: 0.54} |
 
@@ -43,6 +44,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 * missing_loss2 - missing_mse2(y_true, y_pred) in https://github.com/emoen/salmon-scale/blob/master/mse_missing_values.py <br />
 * missing_loss3 - classic mse with 2 outputs <br />
 * (9) regression on river age contains missing values - encoded as -1
+* (10) identical to (6) but with lr=.0005 instead of the usual lr=.0001
 
 Note val_acc is 0.7068 in almost every epoch (except 2. epoch of missing_loss2 training.) <br />
 
