@@ -14,6 +14,8 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Salmon               | sea age    | -"-    |0.239 |0.141 |0.822|x    |9073     | linear | x |
 | Salmon B4(12)        | sea age    | 1.476  |1.476 |60.25 |0.471|x    |9073     | linear | x |
 | Salmon B4(13)        | sea age    |x  |x |x |x|x    |8299     | linear | x |
+| Salmon B4(14)patience20        | sea age    |x  |x |x |x|x    |8299     | linear | x |
+| Salmon B4(15)path20batch16        | sea age    |x  |x |x |x|x    |8299     | linear | x |
 | Salmon               | river age  | -"-    |0.431 |0.252 |0.585|x    |6300     | linear | x |
 | Salmon B4(9)         | river age  |2.35    |2.35  |x     |0.37 |x    |9073     | linear | x |
 | Salmon B4(11)        | river age  |0.359   |0.359 |19.58 |0.618|x    |6246     | linear | x |
