@@ -11,9 +11,10 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | ---------------------| -----------|--------|------|------|-----|-----|---------|--------|--------------|
 | Greenland Halibut(1) | age        | x      |2.65  |0.124 |0.262|x    |8875     | linear | x | 
 | Greenland Halibut(2) | age        | -"-    |2.82  |0.136 |0.294|x    |8875     | linear | x |
-| Salmon               | sea age    | -"-    |0.239 |0.141 |0.822|x    |ca 9000  | linear | x |
+| Salmon               | sea age    | -"-    |0.239 |0.141 |0.822|x    |9073     | linear | x |
 | Salmon               | river age  | -"-    |0.431 |0.252 |0.585|x    |6300     | linear | x |
 | Salmon B4(9)         | river age  |2.35    |2.35  |x     |0.37 |x    |9073     | linear | x |
+| Salmon B4(11)        | river age  |0.359   |0.359 |19.58 |0.618|x    |6246     | linear | x |
 | Salmon missing_loss1 | river & sea|9.4372  |2.955 |0.97  |0.707|x    |9073     | linear | x |
 | Salmon missing_loss2 | river & sea|0.5915  |2.992 |0.974 |0.707|x    |9073     | linear | x |
 | Salmon missing_loss3 | river & sea|2.0107  |2.011 |0.744 |0.607|x    |9073     | linear | x |
@@ -45,6 +46,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 * missing_loss3 - classic mse with 2 outputs <br />
 * (9) regression on river age contains missing values - encoded as -1
 * (10) identical to (6) but with lr=.0005 instead of the usual lr=.0001
+* (11) identical to (9) but without scales of unknown river age. Learning rage 0.0001
 
 Note val_acc is 0.7068 in almost every epoch (except 2. epoch of missing_loss2 training.) <br />
 
