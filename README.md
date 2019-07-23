@@ -51,6 +51,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 * (9) regression on river age contains missing values - encoded as -1
 * (10) identical to (6) but with lr=.0005 instead of the usual lr=.0001
 * (11) identical to (9) but without scales of unknown river age. Learning rage 0.0001
+* (12) without unknown using patience 5, on efficientNet B4. Resolution 380x380
 
 Note val_acc is 0.7068 in almost every epoch (except 2. epoch of missing_loss2 training.) <br />
 
