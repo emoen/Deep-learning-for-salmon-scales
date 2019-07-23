@@ -29,8 +29,8 @@ new_shape = (380, 380, 3)
 IMG_SHAPE = (380, 380)
 base_dir = '/gpfs/gpfs0/deep/data/salmon-scales/dataset_5_param'
 id_column = 'ID nr.'
-tensorboard_path = './tensorboard_farmed_not_balanced_softmax_lr_0005'
-checkpoint_path = './checkpoints_farmed_not_balanced_softmax_lr_0005/salmon_scale_efficientnetB4.{epoch:03d}-{val_loss:.2f}.hdf5'
+tensorboard_path = './tensorboard_salmon_sea_uten_ukjent_patience_20_batch_16'
+checkpoint_path = './checkpoints_salmon_sea_uten_ukjent_patience_20_batch_16/salmon_scale_efficientnetB4.{epoch:03d}-{val_loss:.2f}.hdf5'
 max_dataset_size = 9073
 SEA_AGE = 'sjø'
 SMOLT_AGE = 'smolt'
@@ -121,29 +121,48 @@ def do_train():
         to_classify_smallest = to_classify_spawning_smallest_class
 
     age = []
-    a_batch_size = 12
+    a_batch_size = 16
 
     rb_imgs, all_sea_age, all_smolt_age, all_farmed_class, all_spawn_class = load_xy() 
 
-    
-if to_classify == to_classify_smolt:
-    uten_ukjent = len(all_smolt_age) - all_smolt_age.count(-1.0)
-    rb_imgs2 = np.empty(shape=(uten_ukjent,)+new_shape)
-    unique, counts = np.unique(all_smolt_age, return_counts=True)
-    print("age distrib:"+str( dict(zip(unique, counts)) ))
-    
-    all_smolt_age2 = []
-    found_count = 0
-    for i in range(0, len(all_smolt_age)):
-        if all_smolt_age[i] > 0:        
-            rb_imgs2[found_count] = rb_imgs[i]
-            all_smolt_age2.append(all_smolt_age[i])
-            found_count += 1
-    
-    assert found_count == uten_ukjent
-    
-    age = all_smolt_age2
-    rb_imgs=rb_imgs2
+    if to_classify == 'sea'
+        
+        uten_ukjent = len(all_sea_age) - all_sea_age.count(-1.0)
+        rb_imgs2 = np.empty(shape=(uten_ukjent,)+new_shape)
+        unique, counts = np.unique(all_sea_age, return_counts=True)
+        print("age distrib:"+str( dict(zip(unique, counts)) ))
+
+        all_sea_age2 = []
+        found_count = 0
+        for i in range(0, len(all_sea_age)):
+            if all_sea_age[i] > -1:        
+                rb_imgs2[found_count] = rb_imgs[i]
+                all_sea_age2.append(all_sea_age[i])
+                found_count += 1
+
+        assert found_count == uten_ukjent
+
+        age = all_sea_age2
+        rb_imgs = rb_imgs2
+        
+    if to_classify == to_classify_smolt:
+        uten_ukjent = len(all_smolt_age) - all_smolt_age.count(-1.0)
+        rb_imgs2 = np.empty(shape=(uten_ukjent,)+new_shape)
+        unique, counts = np.unique(all_smolt_age, return_counts=True)
+        print("age distrib:"+str( dict(zip(unique, counts)) ))
+
+        all_smolt_age2 = []
+        found_count = 0
+        for i in range(0, len(all_smolt_age)):
+            if all_smolt_age[i] > 0:        
+                rb_imgs2[found_count] = rb_imgs[i]
+                all_smolt_age2.append(all_smolt_age[i])
+                found_count += 1
+
+        assert found_count == uten_ukjent
+
+        age = all_smolt_age2
+        rb_imgs=rb_imgs2
     
     all_y_true = []
     if to_classify == to_classify_wild:
@@ -210,6 +229,7 @@ if to_classify == to_classify_smolt:
 
         rb_imgs = rb_imgs2
         all_spawn_class = all_spawn_class2
+        all_y_true = all_spawn_class
         print("count uten_ukjent:"+str(uten_ukjent)+" all_spawn_class:"+str(len(all_spawn_class)))
     
     if to_classify == to_classify_spawning    
@@ -228,7 +248,7 @@ if to_classify == to_classify_smolt:
     print("oppdrett/gytar:"+str(all_y_true.count(to_classify_smallest)))
     print("len(all_y_true):"+str(len(all_y_true)))
     print("smallest + largest:"+str(all_y_true.count(to_classify_largest)+all_y_true.count(to_classify_smallest)))
-    early_stopper = EarlyStopping(patience=5)
+    early_stopper = EarlyStopping(patience=20)
     train_datagen = ImageDataGenerator(
         zca_whitening=True,
         width_shift_range=0.,
@@ -283,14 +303,16 @@ if to_classify == to_classify_smolt:
     for layer in scales.layers:
         layer.trainable = True
         
-    scales.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'] )
+    scales.compile(loss='mse', optimizer=adam, metrics=['accuracy','mse', 'mape'] )
     tensorboard, checkpointer = get_checkpoint_tensorboard(tensorboard_path, checkpoint_path)
 
     #only for classification
-    classWeight = compute_class_weight('balanced', np.unique(all_y_true), all_y_true)
-    classWeight = dict(enumerate(classWeight))
-    print("classWeight:"+str(classWeight))
-    # else classWeight=None
+    classWeight = None
+    if to_classify == to_classify_spawning or to_classify == to_classify_wild:
+        classWeight = compute_class_weight('balanced', np.unique(all_y_true), all_y_true)
+        classWeight = dict(enumerate(classWeight))
+        print("classWeight:"+str(classWeight))
+
 history_callback = scales.fit_generator(train_generator,
         steps_per_epoch=1600,
         epochs=150,
