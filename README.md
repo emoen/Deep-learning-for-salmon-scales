@@ -26,10 +26,13 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Salmon (3)           | Spawned    |0.113   |x     |x     |0.964|x    |9073     | softmax| {0: 0.5, 1: 19} |
 | Salmon (5)           | Spawned    |0.132   |x     |x     |0.958|x    |476      | softmax| {0: 1, 1: 1} |
 | Salmon (8)           | spawned    |0.6417  |x     |x     |0.944|x    |476      | sigmoid| {0: 1, 1: 1} |
+| Salmon (18)           | spawned    |0.6417  |x     |x     |0.944|x    |476      | sigmoid| {0: 1, 1: 1} |
 | Salmon (6)           | Wild/farmed|0.155   |x     |x     |0.9697|x   |5932     | softmax| {0: 5.87, 1: 0.54} |
 | Salmon (10)lr=0.0005 | Wild/farmed|1.21    |x     |x     |0.924 |x   |5932     | softmax| {0: 5.87, 1: 0.54} |
 | Salmon (4)           | Wild/farmed|0.213   |x     |x     |0.94 |x    |1010     | softmax| {0: 1, 1: 1} |
 | Salmon (7)           | Wild/farmed|0.693   |x     |x     |0.075|x    |5932     | sigmoid| {0: 5.87, 1: 0.54} |
+| Salmon (17)           | Wild/farmed|x   |x     |x     |x|x    |5932     | softmax| {0: 5.87, 1: 0.54} |
+
 
 * (1) is test-set <br/>
 * (2) is validation-set <br/>
@@ -54,6 +57,9 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 * (11) identical to (9) but without scales of unknown river age. Learning rage 0.0001
 * (12) without unknown using patience 5, on efficientNet B4. Resolution 380x380
 * (14) patience 20, batch size=12, lr=0.0001, efficientNet B4, dense(2) linear, tensorboard_path='./tensorboard_salmon_sea_uten_ukjent_patience_20'
+* (16) checkpoints_salmon_sea_uten_ukjent_patience_20
+* (17) tensorboard_farmed_uten_ukjent_patience_20
+* (18) tensorboard_spawned_uten_ukjent_patience_20
 
 Note val_acc is 0.7068 in almost every epoch (except 2. epoch of missing_loss2 training.) <br />
 
