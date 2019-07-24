@@ -15,11 +15,11 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Salmon B4(12)        | sea age    | 1.476  |1.476 |60.25 |0.471|x    |9073     | linear | x |
 | Salmon B4(13)        | sea age    | 0.17   |0.173 |8.97  |0.846|x    |8299     | linear | x |
 | Salmon B4(14)patience20| sea age  | 0.158  |0.158 |7.88  |0.863|x    |8299     | linear | x |
-| Salmon B4(15)path20batch16        | sea age    |x  |x |x |x|x    |8299     | linear | x |
+| Salmon B4(15)path20batch16| sea age|x  |x |x |x|x    |8299     | linear | x |
 | Salmon               | river age  | -"-    |0.431 |0.252 |0.585|x    |6300     | linear | x |
 | Salmon B4(9)         | river age  |2.35    |2.35  |x     |0.37 |x    |9073     | linear | x |
 | Salmon B4(11)        | river age  |0.359   |0.359 |19.58 |0.618|x    |6246     | linear | x |
-| Salmon B4(16)patience20        | river age  |x   |x |x |x|x    |6246     | linear | x |
+| Salmon B4(16)patience20| river age|0.359  |0.359 |17.315 |0.6297|x    |6246     | linear | x |
 | Salmon missing_loss1 | river & sea|9.4372  |2.955 |0.97  |0.707|x    |9073     | linear | x |
 | Salmon missing_loss2 | river & sea|0.5915  |2.992 |0.974 |0.707|x    |9073     | linear | x |
 | Salmon missing_loss3 | river & sea|2.0107  |2.011 |0.744 |0.607|x    |9073     | linear | x |
