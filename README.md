@@ -57,9 +57,10 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 * (11) identical to (9) but without scales of unknown river age. Learning rage 0.0001
 * (12) without unknown using patience 5, on efficientNet B4. Resolution 380x380
 * (14) patience 20, batch size=12, lr=0.0001, efficientNet B4, dense(2) linear, tensorboard_path='./tensorboard_salmon_sea_uten_ukjent_patience_20'
-* (16) checkpoints_salmon_sea_uten_ukjent_patience_20
-* (17) tensorboard_farmed_uten_ukjent_patience_20
-* (18) tensorboard_spawned_uten_ukjent_patience_20
+* (14) sea age: checkpoints_salmon_sea_uten_ukjent_patience_20 
+* (16) river age: NB have forgotten to set new directory: checkpoints_salmon_sea_uten_ukjent. Patience 20
+* (17) farmed: tensorboard_farmed_uten_ukjent_patience_20
+* (18) Spawned: tensorboard_spawned_uten_ukjent_patience_20
 
 Note val_acc is 0.7068 in almost every epoch (except 2. epoch of missing_loss2 training.) <br />
 
