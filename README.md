@@ -31,7 +31,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Salmon (10)lr=0.0005 | Wild/farmed|1.21    |x     |x     |0.924 |x   |5932     | softmax| {0: 5.87, 1: 0.54} |
 | Salmon (4)           | Wild/farmed|0.213   |x     |x     |0.94 |x    |1010     | softmax| {0: 1, 1: 1} |
 | Salmon (7)           | Wild/farmed|0.693   |x     |x     |0.075|x    |5932     | sigmoid| {0: 5.87, 1: 0.54} |
-| Salmon (17)           | Wild/farmed|x   |x     |x     |x|x    |5932     | softmax| {0: 5.87, 1: 0.54} |
+| Salmon (17)           | Wild/farmed|0.2057   |x     |x     |0.96292|x    |5932     | softmax| {0: 5.87, 1: 0.54} |
 
 
 * (1) is test-set <br/>
