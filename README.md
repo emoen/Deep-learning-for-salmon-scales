@@ -169,6 +169,19 @@ confusion matrix:
 |non spawnd|  38    |0   |
 |spawnd    |   4    |29  |
 
+* (17)
+|            |precision|recall|f1-score|support|
+|------------|---------|------|--------|-------|
+|opprett     |0.76     |0.75  |  0.75  | 67    |
+|not opprett |0.98     |0.98  |  0.98  | 823    |
+|accuracy    |	        |    	 |  0.96  | 890   |
+|macro avg   |0.87     | 0.86 |  0.87  | 890    |
+|weighted avg|0.96     | 0.96 |  0.96  | 890    | 
+
+|class   |oppdrett|vill|
+|--------|-------|-----|
+|oppdrett|50     |17   |
+|vill    |16      |807  |
 
 ```
 >>> df = pd.DataFrame({}, d2015.columns.values)
