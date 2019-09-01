@@ -59,6 +59,7 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 * (14) patience 20, batch size=12, lr=0.0001, efficientNet B4, dense(2) linear, tensorboard_path='./tensorboard_salmon_sea_uten_ukjent_patience_20'
 * (14) sea age: checkpoints_salmon_sea_uten_ukjent_patience_20 
 * (16) river age: NB have forgotten to set new directory: checkpoints_salmon_sea_uten_ukjent. Patience 20
+** rerun: batch size=12
 * (17) farmed: tensorboard_farmed_uten_ukjent_patience_20
 * (18) Spawned: tensorboard_spawned_uten_ukjent_patience_20
 
