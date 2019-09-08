@@ -258,3 +258,10 @@ River age distribution:
 >>> dict(zip(unique, counts))
 {-1.0: 2827, 1.0: 195, 2.0: 2097, 3.0: 3528, 4.0: 377, 5.0: 45, 6.0: 4}
 ```
+
+Sea age:
+```
+>>> unique, counts = np.unique(all_sea_age2, return_counts=True)
+>>> dict(zip(unique, counts))
+{1.0: 2323, 2.0: 4192, 3.0: 1443, 4.0: 235, 5.0: 64, 6.0: 31, 7.0: 8, 8.0: 2, 9.0: 1}
+```
