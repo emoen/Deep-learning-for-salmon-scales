@@ -1,4 +1,4 @@
-'''
+```
 outlier3 = abs(y_pred_test - test_age)
 >>> outlier3.argsort()[-5:]
 array([ 14, 377, 746, 512, 522])
@@ -23,5 +23,4 @@ PosixPath('/gpfs/gpfs0/deep/data/salmon-scales/dataset_5_param/rb2017/Eid2017-41
 PosixPath('/gpfs/gpfs0/deep/data/salmon-scales/dataset_5_param/rb2016/Eidfjord2016-117.jpg')
 >>> test_age_names[522]
 PosixPath('/gpfs/gpfs0/deep/data/salmon-scales/dataset_5_param/hi2015_in_excel/Langfjordelva_Høstfiske_2015_015.jpg')
-
-'''
+```
