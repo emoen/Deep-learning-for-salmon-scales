@@ -28,8 +28,8 @@ from efficientnet import EfficientNetB4
 
 new_shape = (380, 380, 3)
 IMG_SHAPE = (380, 380)
-tensorboard_path = './tensorboard_best_salmon_sea_batch_16'
-checkpoint_path = './checkpoints_best_salmon_sea_batch_16/salmon_scale_efficientnetB4.{epoch:03d}-{val_loss:.2f}.hdf5'
+tensorboard_path = './tensorboard_river_no_weights'
+checkpoint_path = './checkpoints_river_no_weights/salmon_scale_efficientnetB4.{epoch:03d}-{val_loss:.2f}.hdf5'
 
 
 def do_train_smolt():
@@ -104,7 +104,7 @@ def do_train_smolt():
 
     #gray_model, gray_model_weights = create_model_grayscale(new_shape)
     #gray_model = get_fresh_weights( gray_model, gray_model_weights )
-    rgb_efficientNetB4 = EfficientNetB4(include_top=False, weights='imagenet', input_shape=new_shape, classes=2)
+    rgb_efficientNetB4 = EfficientNetB4(include_top=False, weights=None, input_shape=new_shape, classes=2)
     z = dense1_linear_output( rgb_efficientNetB4 )
     scales = Model(inputs=rgb_efficientNetB4.input, outputs=z)
 
@@ -145,11 +145,9 @@ def do_train_smolt():
     print("confusion matrix")
     print(str(confusion_matrix(y_true_bool, y_pred_test_bool)))
     print("*** y_test****")
-    print(y_pred_test)
-    print("****y_true*****")
-    print(test_age)
-    print("** names *****")
-    print(test_age_names)
+    np.savetxt("y_pred_sea.txt", [y_pred_test])
+    np.savetxt("y_sea.txt", [test_age])
+    np.savetxt("sea_names.txt", [test_age_names])
 
 if __name__ == '__main__':
     do_train_smolt()
