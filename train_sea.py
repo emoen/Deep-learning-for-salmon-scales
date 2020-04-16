@@ -24,12 +24,13 @@ from keras import backend as K
 from clean_y_true import read_and_clean_4_param_csv
 from train_util import read_images, load_xy, get_checkpoint_tensorboard, create_model_grayscale, get_fresh_weights, base_output, dense1_linear_output, train_validate_test_split
 
-from efficientnet import EfficientNetB4
+#from efficientnet import EfficientNetB4
+import efficientnet.keras as efn
 
 new_shape = (380, 380, 3)
 IMG_SHAPE = (380, 380)
-tensorboard_path = './tensorboard_best_salmon_sea_not_smolt_batch_16'
-checkpoint_path = './checkpoints_best_salmon_sea_not_smolt_batch_16/salmon_scale_efficientnetB4.{epoch:03d}-{val_loss:.2f}.hdf5'
+tensorboard_path = './tensorboard_best_salmon_sea_not_smolt_batch_16_16_april_2020'
+checkpoint_path = './checkpoints_best_salmon_sea_not_smolt_batch_16_16_april_2020/salmon_scale_efficientnetB4.{epoch:03d}-{val_loss:.2f}.hdf5'
 
 
 def do_train_sea():
@@ -40,11 +41,6 @@ def do_train_sea():
     a_batch_size = 12
 
     rb_imgs, all_sea_age, all_smolt_age, all_farmed_class, all_spawn_class, all_filenames = load_xy()
-
-    uten_ukjent = len(all_sea_age) - all_sea_age.count(-1.0)
-    rb_imgs2 = np.empty(shape=(uten_ukjent,)+new_shape)
-    unique, counts = np.unique(all_sea_age, return_counts=True)
-    print("age distrib:"+str( dict(zip(unique, counts)) ))
 
     uten_ukjent = len(all_sea_age) - all_sea_age.count(-1.0)
     rb_imgs2 = np.empty(shape=(uten_ukjent,)+new_shape)
@@ -69,8 +65,8 @@ def do_train_sea():
     early_stopper = EarlyStopping(patience=20)
     train_datagen = ImageDataGenerator(
         zca_whitening=True,
-        width_shift_range=0.,
-        height_shift_range=0., #20,
+        width_shift_range=5,
+        height_shift_range=5, #20,
         zoom_range=0.,
         rotation_range=360,
         horizontal_flip=False,
@@ -107,13 +103,11 @@ def do_train_sea():
 
     train_generator = train_datagen.flow(train_rb_imgs, train_age, batch_size= a_batch_size)
 
-    #gray_model, gray_model_weights = create_model_grayscale(new_shape)
-    #gray_model = get_fresh_weights( gray_model, gray_model_weights )
-    rgb_efficientNetB4 = EfficientNetB4(include_top=False, weights='imagenet', input_shape=new_shape, classes=2)
-    z = dense1_linear_output( rgb_efficientNetB4 )
-    scales = Model(inputs=rgb_efficientNetB4.input, outputs=z)
+    rgb_efficientNetB5 = efn.EfficientNetB5(include_top=False, weights='imagenet', input_shape=new_shape, classes=2)
+    z = dense1_linear_output( rgb_efficientNetB5 )
+    scales = Model(inputs=rgb_efficientNetB5.input, outputs=z)
 
-    learning_rate=0.00008
+    learning_rate=0.00007
     adam = optimizers.Adam(lr=learning_rate)
 
     for layer in scales.layers:
