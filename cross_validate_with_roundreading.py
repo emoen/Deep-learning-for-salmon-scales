@@ -72,14 +72,13 @@ def test_sea_predictions():
     df_outliers.to_csv('sea_age_magnitude_error_ringlesing2020.csv', sep=' ', index=False)
 
     # test on test_set
-    do_test_sea(model_pred_path, new_shape)
+    do_test_sea(model_pred_path, new_shape, sea_age_model)
 
 def read_images_from_ringlesing(ringlesing_path, rb_imgs, IMG_SHAPE):
     
     found_count=0
     filename=list()
     for image_name in os.listdir(ringlesing_path):
-        #if image_name in {'9.jpg','10.jpg','11.jpg','12.jpg','13.jpg','14.jpg','15.jpg','16.jpg','17.jpg','18.jpg'}:
         path = os.path.join(ringlesing_path, image_name )
         pil_img = load_img(path, target_size=IMG_SHAPE, grayscale=False)
         array_img = img_to_array(pil_img, data_format='channels_last')
@@ -89,7 +88,7 @@ def read_images_from_ringlesing(ringlesing_path, rb_imgs, IMG_SHAPE):
     
     return rb_imgs, filename
     
-def do_test_sea(model_pred_path, new_shape):
+def do_test_sea(model_pred_path, new_shape, sea_age_model):
     rb_imgs, all_sea_age, all_smolt_age, all_farmed_class, all_spawn_class, all_filenames = load_xy()    
 
     uten_ukjent = len(all_sea_age) - all_sea_age.count(-1.0)
