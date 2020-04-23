@@ -29,8 +29,8 @@ import efficientnet.keras as efn
 
 new_shape = (380, 380, 3)
 IMG_SHAPE = (380, 380)
-tensorboard_path = './tensorboard_best_salmon_sea_not_smolt_batch_16_16_april_2020'
-checkpoint_path = './checkpoints_best_salmon_sea_not_smolt_batch_16_16_april_2020/salmon_scale_efficientnetB4.{epoch:03d}-{val_loss:.2f}.hdf5'
+tensorboard_path = './tensorboard_best_salmon_sea_not_smolt_batch_16_21_april_2020_v1.1.0'
+checkpoint_path = './checkpoints_best_salmon_sea_not_smolt_batch_16_21_april_2020_v1.1.0/salmon_scale_efficientnetB4.{epoch:03d}-{val_loss:.2f}.hdf5'
 
 
 def do_train_sea():
@@ -103,7 +103,7 @@ def do_train_sea():
 
     train_generator = train_datagen.flow(train_rb_imgs, train_age, batch_size= a_batch_size)
 
-    rgb_efficientNetB5 = efn.EfficientNetB5(include_top=False, weights='imagenet', input_shape=new_shape, classes=2)
+    rgb_efficientNetB5 = efn.EfficientNetB4(include_top=False, weights='imagenet', input_shape=new_shape, classes=2)
     z = dense1_linear_output( rgb_efficientNetB5 )
     scales = Model(inputs=rgb_efficientNetB5.input, outputs=z)
 
@@ -120,8 +120,8 @@ def do_train_sea():
     classWeight = None
 
     history_callback = scales.fit_generator(train_generator,
-            steps_per_epoch=1600,
-            epochs=150,
+            steps_per_epoch=1,#600,
+            epochs=1,#50,
             callbacks=[early_stopper, tensorboard, checkpointer],
             validation_data=(val_rb_imgs, val_age),
             class_weight=classWeight)
@@ -139,14 +139,17 @@ def do_train_sea():
     unique, counts = np.unique(argmax_test, return_counts=True)
     print("test ocurrence of each class:"+str(dict(zip(unique, counts))))
 
-    print("cslassification_report")
+    print("classification_report")
     print(classification_report(y_true_bool, y_pred_test_bool))
     print("confusion matrix")
     print(str(confusion_matrix(y_true_bool, y_pred_test_bool)))
     print("*** y_test****")
-    np.savetxt("y_pred_sea.txt", [y_pred_test])
-    np.savetxt("y_sea.txt", [test_age])
-    np.savetxt("sea_names.txt", [test_age_names])
+    print(y_pred_test.shape)
+    df_output = pd.DataFrame(columns={'y', 'y_hat', 'sea_name' })
+    df_output['sea_name'] = test_age_names
+    df_output['y_hat'] = y_pred_test
+    df_output['y'] = test_age
+    df_output.to_csv(tensorboard_path+'/y_pred_sea1.txt', index=False, sep=' ')
 
 if __name__ == '__main__':
     do_train_sea()
