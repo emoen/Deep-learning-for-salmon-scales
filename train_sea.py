@@ -103,9 +103,9 @@ def do_train_sea():
 
     train_generator = train_datagen.flow(train_rb_imgs, train_age, batch_size= a_batch_size)
 
-    rgb_efficientNetB5 = efn.EfficientNetB4(include_top=False, weights='imagenet', input_shape=new_shape, classes=2)
-    z = dense1_linear_output( rgb_efficientNetB5 )
-    scales = Model(inputs=rgb_efficientNetB5.input, outputs=z)
+    rgb_efficientNetB4 = efn.EfficientNetB4(include_top=False, weights='imagenet', input_shape=new_shape, classes=2)
+    z = dense1_linear_output( rgb_efficientNetB4 )
+    scales = Model(inputs=rgb_efficientNetB4.input, outputs=z)
 
     learning_rate=0.00007
     adam = optimizers.Adam(lr=learning_rate)
@@ -120,8 +120,8 @@ def do_train_sea():
     classWeight = None
 
     history_callback = scales.fit_generator(train_generator,
-            steps_per_epoch=1,#600,
-            epochs=1,#50,
+            steps_per_epoch=1600,
+            epochs=150,
             callbacks=[early_stopper, tensorboard, checkpointer],
             validation_data=(val_rb_imgs, val_age),
             class_weight=classWeight)
