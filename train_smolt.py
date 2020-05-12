@@ -22,7 +22,8 @@ from keras import optimizers, layers
 from keras import backend as K
 
 from clean_y_true import read_and_clean_4_param_csv
-from train_util import read_images, load_xy, get_checkpoint_tensorboard, create_model_grayscale, get_fresh_weights, base_output, dense1_linear_output, train_validate_test_split
+from train_util import read_images, load_xy, get_checkpoint_tensorboard, create_model_grayscale, get_fresh_weights, base_output, dense1_linear_output, trai
+n_validate_test_split
 
 #from efficientnet import EfficientNetB4
 import efficientnet.keras as efn
@@ -38,7 +39,7 @@ def do_train_smolt():
 
     os.environ["CUDA_VISIBLE_DEVICES"]="0"
     age = []
-    a_batch_size = 12
+    a_batch_size = 8
 
     rb_imgs, all_sea_age, all_smolt_age, all_farmed_class, all_spawn_class, all_filenames = load_xy()
 
@@ -153,3 +154,4 @@ def do_train_smolt():
 
 if __name__ == '__main__':
     do_train_smolt()
+

@@ -29,8 +29,8 @@ new_shape = (380, 380, 3)
 IMG_SHAPE = (380, 380)
 base_dir = '/gpfs/gpfs0/deep/data/salmon-scales/dataset_5_param'
 id_column = 'ID nr.'
-tensorboard_path = './tensorboard_salmon_sea_uten_ukjent_patience_20_batch_16'
-checkpoint_path = './checkpoints_salmon_sea_uten_ukjent_patience_20_batch_16/salmon_scale_efficientnetB4.{epoch:03d}-{val_loss:.2f}.hdf5'
+tensorboard_path = './tensorboard_farmed_uten_ukjent_patience_20'
+checkpoint_path = './checkpoints_farmed_uten_ukjent_patience_20/salmon_scale_efficientnetB4.{epoch:03d}-{val_loss:.2f}.hdf5'
 max_dataset_size = 9073
 SEA_AGE = 'sjø'
 SMOLT_AGE = 'smolt'
@@ -121,7 +121,7 @@ def do_train():
         to_classify_smallest = to_classify_spawning_smallest_class
 
     age = []
-    a_batch_size = 16
+    a_batch_size = 12
 
     rb_imgs, all_sea_age, all_smolt_age, all_farmed_class, all_spawn_class = load_xy() 
 
@@ -171,7 +171,7 @@ def do_train():
         if get_balanced_data:
             uten_ukjent = all_farmed_class.count('oppdrett') * 2
             rb_imgs2 = np.empty(shape=(uten_ukjent,)+new_shape)
-            
+
         print("count vill:"+str(all_farmed_class.count('vill')))
         print("count oppdrett:"+str(all_farmed_class.count('oppdrett')))
         print("count uten_ukjent:"+str(uten_ukjent))            
@@ -293,9 +293,9 @@ def do_train():
 
     #gray_model, gray_model_weights = create_model_grayscale(new_shape)
     #gray_model = get_fresh_weights( gray_model, gray_model_weights )
-    rgb_efficientNetB4 = EfficientNetB4(include_top=False, weights='imagenet', input_shape=new_shape, classes=2)
-    z = dense1_linear_output( rgb_efficientNetB4 )
-    scales = Model(inputs=rgb_efficientNetB4.input, outputs=z)
+rgb_efficientNetB4 = EfficientNetB4(include_top=False, weights='imagenet', input_shape=new_shape, classes=2)
+z = dense_classification_softmax( rgb_efficientNetB4 )
+scales = Model(inputs=rgb_efficientNetB4.input, outputs=z)
 
     learning_rate=0.0001
     adam = optimizers.Adam(lr=learning_rate)
@@ -303,8 +303,8 @@ def do_train():
     for layer in scales.layers:
         layer.trainable = True
         
-    scales.compile(loss='mse', optimizer=adam, metrics=['accuracy','mse', 'mape'] )
-    tensorboard, checkpointer = get_checkpoint_tensorboard(tensorboard_path, checkpoint_path)
+scales.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy']) #,'mse', 'mape'] )
+tensorboard, checkpointer = get_checkpoint_tensorboard(tensorboard_path, checkpoint_path)
 
     #only for classification
     classWeight = None
