@@ -56,6 +56,8 @@ def test_sea_predictions():
     df_y_hat = df_y_hat.sort_values(by=['fishno'])
 
     df_y_true = pd.read_csv(ringlesing_y_true, sep=' ')
+    df_y_hat.to_csv('river_age_y_hat2020.csv', sep=' ', index=False)
+    
 
     mse_pred = mean_squared_error(df_y_true['y_true'], df_y_hat['y_hat'])
     print(mse_pred) # mse=0.06686158509602429  

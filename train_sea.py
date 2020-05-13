@@ -21,7 +21,6 @@ from keras.utils import to_categorical
 from keras import optimizers, layers
 from keras import backend as K
 
-from clean_y_true import read_and_clean_4_param_csv
 from train_util import read_images, load_xy, get_checkpoint_tensorboard, create_model_grayscale, get_fresh_weights, base_output, dense1_linear_output, train_validate_test_split
 
 #from efficientnet import EfficientNetB4
