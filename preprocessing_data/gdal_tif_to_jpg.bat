@@ -1,0 +1,1 @@
+forfiles /p . /m *.tif /c "cmd /c gdal_translate -of JPEG -scale -co worldfile=no @file ../../jpg/2017/@fname.jpg"
