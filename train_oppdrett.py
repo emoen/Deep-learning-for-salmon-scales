@@ -33,7 +33,7 @@ checkpoint_path = './checkpoints_farmed_uten_ukjent_patience_20/salmon_scale_eff
 FARMED_CLASS = 'vill'
 SPAWN_CLASS = 'gytarar'
 
-def do_train_classification():
+def do_train():
     global new_shape, tensorboard_path, checkpoint_path, to_predict, dataset_size_selected
 
     os.environ["CUDA_VISIBLE_DEVICES"]="0"
@@ -51,8 +51,10 @@ def do_train_classification():
     all_farmed_class2 = []
     found_count = 0
     count_vill_added = 0
+    all_filenames2 = []
     for i in range(0, len(all_farmed_class)):
         if all_farmed_class[i] != 'ukjent':
+            all_filenames2.append(all_filenames[i])
             if all_farmed_class[i] == 'vill' and count_vill_added < uten_ukjent:
                 rb_imgs2[found_count] = rb_imgs[i]
                 all_farmed_class2.append(all_farmed_class[i])
@@ -84,10 +86,10 @@ def do_train_classification():
     print("age encoded:**************************")
     print(str(age[0:5]))
     print(str(set(all_y_true)))
-    print("vill/ikke_gytar:"+str(all_y_true.count(to_classify_largest)))
-    print("oppdrett/gytar:"+str(all_y_true.count(to_classify_smallest)))
+    print("vill/ikke_gytar:"+str(all_y_true.count('vill'))+"," +str(all_y_true.count('oppdrett')))
+    #print("oppdrett/gytar:"+str(all_y_true.count(to_classify_smallest)))
     print("len(all_y_true):"+str(len(all_y_true)))
-    print("smallest + largest:"+str(all_y_true.count(to_classify_largest)+all_y_true.count(to_classify_smallest)))
+
     early_stopper = EarlyStopping(patience=20)
     train_datagen = ImageDataGenerator(
         zca_whitening=True,
@@ -138,7 +140,7 @@ def do_train_classification():
 
     for layer in scales.layers:
         layer.trainable = True
-        
+            
     scales.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy']) #,'mse', 'mape'] )
     tensorboard, checkpointer = get_checkpoint_tensorboard(tensorboard_path, checkpoint_path)
 
