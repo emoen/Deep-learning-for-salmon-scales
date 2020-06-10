@@ -38,7 +38,7 @@ def do_train():
 
     os.environ["CUDA_VISIBLE_DEVICES"]="0"
     age = []
-    a_batch_size = 12
+    a_batch_size = 8
 
     rb_imgs, all_sea_age, all_smolt_age, all_farmed_class, all_spawn_class, all_filenames = load_xy()
 
@@ -74,7 +74,7 @@ def do_train():
     all_farmed_class = all_farmed_class2
     all_y_true = all_farmed_class
     print("count uten_ukjent:"+str(uten_ukjent)+" all_farmed_class:"+str(len(all_farmed_class)))
-    
+
     #if to_classify == to_classify_spawning    
     #    all_y_true = all_spawn_class
 
@@ -90,44 +90,44 @@ def do_train():
     #print("oppdrett/gytar:"+str(all_y_true.count(to_classify_smallest)))
     print("len(all_y_true):"+str(len(all_y_true)))
 
-    early_stopper = EarlyStopping(patience=20)
-    train_datagen = ImageDataGenerator(
-        zca_whitening=True,
-        width_shift_range=5,
-        height_shift_range=5, 
-        zoom_range=0.,
-        rotation_range=360,
-        horizontal_flip=False,
-        vertical_flip=True,
-        rescale=1./255)
-        
-    train_idx, val_idx, test_idx = train_validate_test_split( range(0, len(rb_imgs)) )
-    train_rb_imgs = np.empty(shape=(len(train_idx),)+new_shape)
-    train_age = []
-    for i in range(0, len(train_idx)):
-        train_rb_imgs[i] = rb_imgs[train_idx[i]]
-        train_age.append(age[train_idx[i]])
+early_stopper = EarlyStopping(patience=20)
+train_datagen = ImageDataGenerator(
+    zca_whitening=True,
+    width_shift_range=5,
+    height_shift_range=5, 
+    zoom_range=0.,
+    rotation_range=360,
+    horizontal_flip=False,
+    vertical_flip=True,
+    rescale=1./255)
+    
+train_idx, val_idx, test_idx = train_validate_test_split( range(0, len(rb_imgs)) )
+train_rb_imgs = np.empty(shape=(len(train_idx),)+new_shape)
+train_age = []
+for i in range(0, len(train_idx)):
+    train_rb_imgs[i] = rb_imgs[train_idx[i]]
+    train_age.append(age[train_idx[i]])
 
-    val_rb_imgs = np.empty(shape=(len(val_idx),)+new_shape)
-    val_age = []
-    for i in range(0, len(val_idx)):
-        val_rb_imgs[i] = rb_imgs[val_idx[i]]
-        val_age.append(age[val_idx[i]])
+val_rb_imgs = np.empty(shape=(len(val_idx),)+new_shape)
+val_age = []
+for i in range(0, len(val_idx)):
+    val_rb_imgs[i] = rb_imgs[val_idx[i]]
+    val_age.append(age[val_idx[i]])
 
-    test_rb_imgs = np.empty(shape=(len(test_idx),)+new_shape)
-    test_age = []
-    test_age_names = []
-    for i in range(0, len(test_idx)):
-        test_rb_imgs[i] = rb_imgs[test_idx[i]]
-        test_age.append(age[test_idx[i]])
-        test_age_names.append(all_filenames2[test_idx[i]])
+test_rb_imgs = np.empty(shape=(len(test_idx),)+new_shape)
+test_age = []
+test_age_names = []
+for i in range(0, len(test_idx)):
+    test_rb_imgs[i] = rb_imgs[test_idx[i]]
+    test_age.append(age[test_idx[i]])
+    test_age_names.append(all_filenames2[test_idx[i]])
 
-    train_age = np.vstack(train_age)
-    val_age = np.vstack(val_age)
-    test_age = np.vstack(test_age)
+train_age = np.vstack(train_age)
+val_age = np.vstack(val_age)
+test_age = np.vstack(test_age)
 
-    val_rb_imgs = np.multiply(val_rb_imgs, 1./255)
-    test_rb_imgs = np.multiply(test_rb_imgs, 1./255)
+val_rb_imgs = np.multiply(val_rb_imgs, 1./255)
+test_rb_imgs = np.multiply(test_rb_imgs, 1./255)
 
     train_generator = train_datagen.flow(train_rb_imgs, train_age, batch_size= a_batch_size)
 
@@ -163,6 +163,12 @@ def do_train():
     y_pred_test = scales.predict(test_rb_imgs, verbose=1)
     y_pred_test_bool = np.argmax(y_pred_test, axis=1)
     y_true_bool = np.argmax(test_age, axis=1)
+    df_y_hat = pd.DataFrame(columns=['filename','y_hat', 'y'])
+    all_names = [str(d)[51:] for d in test_age_names]
+    df_y_hat['filename'] = all_names
+    df_y_hat['y_hat'] = y_pred_test_bool
+    df_y_hat['y'] = y_true_bool
+    df_y_hat.to_csv('test_set_oppdrett.csv', sep=' ', index=False)
     #np.argmax inverse of to_categorical
     argmax_test = np.argmax(test_age, axis=1)
     unique, counts = np.unique(argmax_test, return_counts=True)
