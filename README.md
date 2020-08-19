@@ -13,21 +13,21 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Greenland Halibut(2) | age        | -"-    |2.82  |0.136 |0.294|x    |8875     | linear | x |
 | Salmon               | sea age    | -"-    |0.239 |0.141 |0.822|x    |9056     | linear | x |
 | Salmon B4(12)        | sea age    | 1.476  |1.476 |60.25 |0.471|x    |9056     | linear | x |
-| Salmon B4(13)        | sea age    | 0.17   |0.173 |8.97  |0.846|x    |8299     | linear | x |
-| **Salmon B4 v1.1.0** | sea age  | 0.1570  |0.1570 |8.6405  |0.8699|x    |8299     | linear | x |
-| **Salmon B4(14)patience20** | sea age  | 0.158  |0.158 |7.88  |0.863|x    |8299     | linear | x |
-| **Salmon B4(14)rerun(lr=0.00007)** | sea age  | 0.158  |0.158 |7.1598 |0.864|x    |8299     | linear | x |
-| **Salmon B4(14)rerun(lr=0.00007) seed=9** | sea age  | 0.199  |0.199 |7.1524 |0.863|x    |8299     | linear | x |
-| **Salmon B4(14)rerun(lr=0.00007) no weights** | sea age  | 1.08  |1.08 |53.9 |0.496|x    |8299     | linear | x |
+| Salmon B4(13)        | sea age    | 0.17   |0.173 |8.97  |0.846|x    |8286     | linear | x |
+| **Salmon B4 v1.1.0** | sea age  | 0.1570  |0.1570 |8.6405  |0.8699|x    |8286     | linear | x |
+| **Salmon B4(14)patience20** | sea age  | 0.158  |0.158 |7.88  |0.863|x    |8286     | linear | x |
+| **Salmon B4(14)rerun(lr=0.00007)** | sea age  | 0.158  |0.158 |7.1598 |0.864|x    |8286     | linear | x |
+| **Salmon B4(14)rerun(lr=0.00007) seed=9** | sea age  | 0.199  |0.199 |7.1524 |0.863|x    |8286     | linear | x |
+| **Salmon B4(14)rerun(lr=0.00007) no weights** | sea age  | 1.08  |1.08 |53.9 |0.496|x    |8286     | linear | x |
 | Salmon B4(15)path20batch16| sea age|x  |x |x |x|x    |8299     | linear | x |
 | Salmon               | river age  | -"-    |0.431 |0.252 |0.585|x    |6300     | linear | x |
 | Salmon B4(9)         | river age  |2.35    |2.35  |x     |0.37 |x    |9056     | linear | x |
-| Salmon B4(11)        | river age  |0.359   |0.359 |19.58 |0.618|x    |6246     | linear | x |
-| **Salmon B4 v1.1.0**     | river age  |0.336   |0.336 |17.34 |0.632|x    |6246     | linear | x |
-| **Salmon B4(16)patience20** | river age|0.359  |0.359 |17.315 |0.6297|x    |6246     | linear | x |
-| **Salmon B4(16) rerun(lr=0.00008)** | river age|0.3237  |0.3237 |17.47 |0.6371|x    |6246     | linear | x |
-| **Salmon B4(16) rerun(lr=0.00008) seed=9** | river age|0.3884  |0.3884 |17.11 |0.6339|x    |6246     | linear | x |
-| **Salmon B4(16x) rerun(lr=0.00008) no weights** | river age|0.4896  |0.4896 |26.70 |0.5347|x    |6246     | linear | x |
+| Salmon B4(11)        | river age  |0.359   |0.359 |19.58 |0.618|x    |6238     | linear | x |
+| **Salmon B4 v1.1.0**     | river age  |0.336   |0.336 |17.34 |0.632|x    |6238     | linear | x |
+| **Salmon B4(16)patience20** | river age|0.359  |0.359 |17.315 |0.6297|x    |6238     | linear | x |
+| **Salmon B4(16) rerun(lr=0.00008)** | river age|0.3237  |0.3237 |17.47 |0.6371|x    |6238     | linear | x |
+| **Salmon B4(16) rerun(lr=0.00008) seed=9** | river age|0.3884  |0.3884 |17.11 |0.6339|x    |6238     | linear | x |
+| **Salmon B4(16x) rerun(lr=0.00008) no weights** | river age|0.4896  |0.4896 |26.70 |0.5347|x    |6238     | linear | x |
 | Salmon missing_loss1 | river & sea|9.4372  |2.955 |0.97  |0.707|x    |9056     | linear | x |
 | Salmon missing_loss2 | river & sea|0.5915  |2.992 |0.974 |0.707|x    |9056     | linear | x |
 | Salmon missing_loss3 | river & sea|2.0107  |2.011 |0.744 |0.607|x    |9056     | linear | x |
@@ -36,11 +36,11 @@ Comparison of different metrics for prediction of salmon scales. I have also add
 | Salmon (8)           | spawned    |0.6417  |x     |x     |0.944|x    |476      | sigmoid| {0: 1, 1: 1} |
 | Salmon (18)           | spawned    |x  |x     |x     |x|x    |9056      | softmax| {0: 0.5, 1: 19} |
 | Salmon (6)           | Wild/farmed|0.155   |x     |x     |0.9697|x   |5917     | softmax| {0: 5.87, 1: 0.54} |
-| **Salmon batch=8**           | Wild/farmed|0.187   |x     |x     |0.967|x   |5917     | softmax| {0: 5.87, 1: 0.54} |
-| Salmon (10)lr=0.0005 | Wild/farmed|1.21    |x     |x     |0.924 |x   |5917     | softmax| {0: 5.87, 1: 0.54} |
+| **Salmon batch=8**           | Wild/farmed|0.187   |x     |x     |0.967|x   |5919     | softmax| {0: 5.87, 1: 0.54} |
+| Salmon (10)lr=0.0005 | Wild/farmed|1.21    |x     |x     |0.924 |x   |5919     | softmax| {0: 5.87, 1: 0.54} |
 | Salmon (4)           | Wild/farmed|0.213   |x     |x     |0.94 |x    |1010     | softmax| {0: 1, 1: 1} |
-| Salmon (7)           | Wild/farmed|0.693   |x     |x     |0.075|x    |5917     | sigmoid| {0: 5.87, 1: 0.54} |
-| Salmon (17)           | Wild/farmed|0.2057   |x     |x     |0.96292|x    |5917     | softmax| {0: 5.87, 1: 0.54} |
+| Salmon (7)           | Wild/farmed|0.693   |x     |x     |0.075|x    |5919     | sigmoid| {0: 5.87, 1: 0.54} |
+| Salmon (17)           | Wild/farmed|0.2057   |x     |x     |0.96292|x    |5919     | softmax| {0: 5.87, 1: 0.54} |
 
 
 * (1) is test-set <br/>
