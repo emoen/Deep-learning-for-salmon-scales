@@ -1,4 +1,12 @@
-# salmon-scale
+# Automatic interpretation of salmon scales using deep learning
+
+## Abstract
+1. Determining the age structure of a fish species is important for understanding population and ecosystem dynamics and for stock assessment and management. For Atlantic salmon, age and other important biological information is collected from scale samples through manual qualitative interpretation. Reliable automatic methods are so far not widely utilised. 
+2. We use a state of the art Convolutional Neural Network (CNN) architecture called EfficientNet and a novel data set consisting of 9056 images of salmon scales to train different CNNs for four different prediction tasks. We consider two binary classification tasks regarding the origin of the fish (wild/farmed) and the spawning state (spawner/non-spawner) as well as two regression tasks predicting the number of years spent in the river and the sea. We take advantage of transfer learning by starting our training process with a CNN pre-trained on existing open-access image database ImageNet. To further test the predictive performance of our two regression CNNs, a set of 150 additional salmon scale images were analyzed for river and sea age both by the CNNs and by six human expert readers.
+3. We find that the CNNs perform well on the two binary classification tasks and on predicting sea age, while the prediction of river age is less accurate. Estimates of river age by experts exhibit higher variance and lower levels of agreement compared to sea age, and may indicate why this task is also more difficult for the CNN. We see substantial benefit in using transfer learning.  Comparing the performance of the CNN to six expert readers using standard precision measures for age reading, we confirmed the high performance of the CNN predicting sea age, well within the top of human expertise.
+4. Automatic interpretation of scales offers a cost-efficient and effective way of investigation of fish age and life-history traits, which may further support the management of these biological resources.
+
+## salmon-scale CNN results
 
 Comparison of different metrics for prediction of salmon scales. I have also added metric from Greenland otolith prediction for comparison. The metrics is from the validation set. Except the first line which is from Greenland Halibut and is calculated from mean of pairs of right and left otolith. <br />
 * In the wild/farmed dataset there is 5427 wild salmon, and 505 (8.5%) farmed salmon. Salmon classified as something else like unknown or trout are not included in training. 
